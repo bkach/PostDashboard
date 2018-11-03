@@ -7,10 +7,13 @@ sealed class Intent {
     data class SelectPostIntent(val selectedPost: Post) : Intent()
 
     class IntentInterpreter : Interpreter<Intent, Action>() {
-        override fun interpret(input: Intent): Action =
-            when(input) {
-                is InitialIntent -> Action.LoadPostsAction
-                is SelectPostIntent -> Action.ShowDetailViewAction(input.selectedPost)
-            }
+        override suspend fun interpret(input: Intent, callback: suspend (Action) -> Unit) {
+            callback(
+                when (input) {
+                    is InitialIntent -> Action.LoadPostsAction
+                    is SelectPostIntent -> Action.ShowDetailViewAction(input.selectedPost)
+                }
+            )
+        }
     }
 }

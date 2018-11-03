@@ -1,6 +1,8 @@
 package com.example.boris.postdashboard.repository
 
+import com.example.boris.postdashboard.model.Comment
 import com.example.boris.postdashboard.model.Post
+import com.example.boris.postdashboard.model.User
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
@@ -20,6 +22,12 @@ class RetrofitWrapper {
     interface JsonPlaceholderService {
         @GET("/posts")
         fun getPosts(): Deferred<Response<List<Post>>>
+
+        @GET("/users")
+        fun getUsers(): Deferred<Response<List<User>>>
+
+        @GET("/comments")
+        fun getComments(): Deferred<Response<List<Comment>>>
     }
 }
 
