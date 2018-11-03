@@ -3,74 +3,94 @@ package com.example.boris.postdashboard.repository
 import com.example.boris.postdashboard.model.Comment
 import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
-import com.example.boris.postdashboard.repository.RetrofitWrapper.JsonPlaceholderService
 import com.example.boris.postdashboard.viewmodel.Result
-import com.example.boris.postdashboard.viewmodel.Result.LoadPostsResult
+import com.example.boris.postdashboard.viewmodel.Result.*
 import kotlinx.coroutines.*
 import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 import kotlin.coroutines.CoroutineContext
 
-class Repository : CoroutineScope, KoinComponent {
-
-    val service: JsonPlaceholderService by inject()
-    var posts: List<Post>? = null
-    var comments: List<Comment>? = null
-    var users: List<User>? = null
+class Repository constructor(
+    private val databaseRepository: DatabaseRepository,
+    private val networkRepository: NetworkRepository
+) : CoroutineScope, KoinComponent {
 
     val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
-    fun loadPosts(): Deferred<Result> = async {
-        delay(1000)
-
-        if (posts != null) {
-            System.out.println("Bdebug -> Cached posts")
-            LoadPostsResult(posts!!)
-        } else {
-            System.out.println("Bdebug -> REQUEST FOR POSTS")
-            val postsResponse = service.getPosts().await()
-
-            if (postsResponse.isSuccessful && postsResponse.body() != null) {
-                posts = postsResponse.body()!!
-                LoadPostsResult(posts!!)
-            } else {
-                Result.PostLoadingError
+    fun getPosts(): Deferred<Result> = async {
+        databaseRepository.getPosts({ LoadPostsResult(it) }) {
+            networkRepository.getPosts({
+                databaseRepository.savePosts(it)
+                databaseRepository.getPosts( { LoadPostsResult(it) }) {
+                    PostLoadingError
+                }
+            }) {
+                PostLoadingError
             }
         }
     }
 
-    fun loadDetails(selectedPost: Post)  = async {
-        delay(1000)
-
-        if (users != null && comments != null) {
-            System.out.println("Bdebug -> Cached users and comments")
-            Result.LoadDetailsResult(updatePost(selectedPost))
-        } else {
-            System.out.println("Bdebug -> REQUEST FOR USERS AND COMMENTS")
-            val usersRequest = service.getUsers().await()
-            val commentsRequest = service.getComments().await()
-
-            if (usersRequest.isSuccessful && commentsRequest.isSuccessful &&
-                usersRequest.body() != null && commentsRequest.body() != null) {
-                users = usersRequest.body()!!
-                comments = commentsRequest.body()!!
-                Result.LoadDetailsResult(updatePost(selectedPost))
-            } else {
-                Result.DetailsLoadingError
+    private fun getUsers(): Deferred<UsersResult> = async {
+        databaseRepository.getUsers( { UsersResult.UsersLoadedResult(it) } ) {
+            networkRepository.getUsers({
+                databaseRepository.saveUsers(it)
+                databaseRepository.getUsers( { UsersResult.UsersLoadedResult(it) } ) {
+                    UsersResult.UserLoadingError
+                }
+            }) {
+                UsersResult.UserLoadingError
             }
         }
     }
 
-    fun updatePost(post: Post): Post {
-        val user = users!!.find { it.id == post.userId }
-        val numComments = comments!!.filter { it.postId == post.id }.size
-
-        post.userName = user?.name
-        post.numComments = numComments
-
-        return post
+    private fun getComments(): Deferred<CommentsResult> = async {
+        databaseRepository.getComments( { CommentsResult.CommentsLoadedResult(it) } ) {
+            networkRepository.getComments({
+                databaseRepository.saveComments(it)
+                databaseRepository.getComments( { CommentsResult.CommentsLoadedResult(it) } ) {
+                    CommentsResult.CommentsLoadingError
+                }
+            }) {
+                CommentsResult.CommentsLoadingError
+            }
+        }
     }
 
+    fun getDetails(selectedPost: Post)  = async {
+        val userResult: UsersResult = getUsers().await()
+        val commentsResult: CommentsResult = getComments().await()
+
+        when (userResult) {
+            is UsersResult.UsersLoadedResult -> when (commentsResult) {
+                is CommentsResult.CommentsLoadedResult ->
+                    Result.LoadDetailsResult(
+                        createUpdatedPost(selectedPost, userResult.users, commentsResult.comments)
+                    )
+                CommentsResult.CommentsLoadingError -> DetailsLoadingError
+            }
+            UsersResult.UserLoadingError -> DetailsLoadingError
+        }
+    }
+
+    private fun createUpdatedPost(selectedPost: Post,
+                                  users: List<User>, comments: List<Comment>) : Post {
+        val user = users.find { it.id == selectedPost.userId }
+        val numComments = comments.filter { it.postId == selectedPost.id }.size
+
+        selectedPost.userName = user?.name
+        selectedPost.numComments = numComments
+
+        return selectedPost
+    }
+
+    sealed class UsersResult {
+        data class UsersLoadedResult(val users: List<User>): UsersResult()
+        object UserLoadingError: UsersResult()
+    }
+
+    sealed class CommentsResult {
+        data class CommentsLoadedResult(val comments: List<Comment>): CommentsResult()
+        object CommentsLoadingError: CommentsResult()
+    }
 }

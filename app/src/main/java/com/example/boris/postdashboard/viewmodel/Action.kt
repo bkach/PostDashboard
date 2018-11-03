@@ -17,11 +17,11 @@ sealed class Action {
                 when(input) {
                     is LoadPostsAction -> {
                         callback(Result.PostsLoading)
-                        repository.loadPosts().await()
+                        repository.getPosts().await()
                     }
                     is ShowDetailViewAction -> {
                         callback(Result.DetailsLoading)
-                        repository.loadDetails(input.selectedPost).await()
+                        repository.getDetails(input.selectedPost).await()
                     }
                 }
             )

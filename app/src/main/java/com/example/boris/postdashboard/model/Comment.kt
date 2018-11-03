@@ -1,3 +1,7 @@
 package com.example.boris.postdashboard.model
 
-data class Comment(val postId: Int)
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
+data class Comment(@PrimaryKey val postId: Int)
