@@ -41,10 +41,6 @@ android {
         }
     }
 
-    packagingOptions {
-        pickFirst 'mockito-extensions/org.mockito.plugins.MockMaker'
-    }
-
     testOptions {
         execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }

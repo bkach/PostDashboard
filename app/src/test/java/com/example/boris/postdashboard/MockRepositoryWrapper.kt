@@ -27,6 +27,9 @@ import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 
+/**
+ * Holds a mocked repository and sets up callbacks used to mock repository calls
+ */
 class MockRepositoryWrapper {
 
     val repository = mock<Repository>()

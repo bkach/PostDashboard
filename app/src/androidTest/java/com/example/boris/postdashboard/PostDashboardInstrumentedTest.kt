@@ -40,9 +40,7 @@ import org.koin.standalone.StandAloneContext.stopKoin
 import org.koin.test.KoinTest
 
 /**
- * Instrumented test, which will execute on an Android device.
- *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * Espresso UI test
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -76,7 +74,7 @@ class PostDashboardInstrumentedTest: KoinTest {
             .check(matches(withText(text.toString())))
     }
 
-    fun getPostsFragment(): Fragment {
+    private fun getPostsFragment(): Fragment {
         return (activityRule.activity as MainActivity).supportFragmentManager.fragments[0]
     }
 }

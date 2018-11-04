@@ -25,6 +25,9 @@ import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import org.hamcrest.Matcher
 
+/**
+ * Custom View Assertion used to count the amount of items in a RecyclerView
+ */
 class RecyclerViewItemCountAssertion(val matcher: Matcher<Int?>) : ViewAssertion {
     override fun check(view: View?, noViewFoundException: NoMatchingViewException?) {
         if (noViewFoundException != null) {

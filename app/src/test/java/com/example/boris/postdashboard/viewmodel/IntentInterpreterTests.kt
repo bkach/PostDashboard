@@ -40,8 +40,8 @@ class IntentInterpreterTests {
     @JvmField
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    val intentInterpreter = Intent.IntentInterpreter()
-    val post: Post = mock()
+    private val intentInterpreter = Intent.IntentInterpreter()
+    private val post: Post = mock()
 
     @Test
     fun `When sending an initial intent, a load posts action should be returned`() {

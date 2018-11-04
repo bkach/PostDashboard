@@ -40,11 +40,10 @@ class DatabaseRepositoryTests {
     @JvmField
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    val postDatabase = mock<PostDatabase>()
-    val postDao = mock<PostDao>()
-    val databaseRepository = DatabaseRepository(postDatabase)
-
-    val post = mock<Post>()
+    private val postDatabase = mock<PostDatabase>()
+    private val postDao = mock<PostDao>()
+    private val databaseRepository = DatabaseRepository(postDatabase)
+    private val post = mock<Post>()
 
     @Before
     fun setup() {
