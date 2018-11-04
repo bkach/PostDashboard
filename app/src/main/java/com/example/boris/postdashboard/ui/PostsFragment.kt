@@ -37,6 +37,9 @@ import com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE
 import kotlinx.android.synthetic.main.fragment_posts.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
+/**
+ * Fragment containing the list of posts. Observes the [State] emitted by the [DashboardViewModel].
+ */
 class PostsFragment : Fragment() {
 
     private val dashboardViewModel: DashboardViewModel by sharedViewModel()
@@ -56,8 +59,14 @@ class PostsFragment : Fragment() {
         subscribeToOnClick()
         observeState()
 
+        // Initial intent should be sent every time the fragment is recreated
         dashboardViewModel.sendIntent(Intent.InitialIntent)
     }
+
+    /**
+     * Disables refresh gesture
+     * // TODO: Refresh logic?
+     */
     private fun disableManualRefresh() {
         post_list_swipe_refresh_layout.isEnabled = false
     }

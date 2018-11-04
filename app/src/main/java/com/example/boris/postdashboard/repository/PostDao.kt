@@ -26,6 +26,9 @@ import com.example.boris.postdashboard.model.Comment
 import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
 
+/**
+ * Data Access Object used with the Room library to access the database
+ */
 @Dao
 interface PostDao {
     @Insert(onConflict = REPLACE)

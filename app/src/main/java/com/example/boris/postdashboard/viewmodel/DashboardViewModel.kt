@@ -29,6 +29,9 @@ import kotlinx.coroutines.launch
 import org.koin.standalone.KoinComponent
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * ViewModel for the PostDashboard Application
+ */
 class DashboardViewModel constructor(
     private val intentInterpreter: Intent.IntentInterpreter,
     private val actionInterpreter: Action.ActionInterpreter,
@@ -42,6 +45,13 @@ class DashboardViewModel constructor(
     val state: LiveData<State>
         get() = _state
 
+    /**
+     * This function pieces together each part of the View Models' architecture. Each [Intent] becomes a [State], and
+     * in the process takes an [Action].
+     *
+     * The basic idea:
+     *      Intents -> Actions -> (Action taken) -> Result -> State
+     */
     fun sendIntent(intent: Intent) {
         launch(contextPool.IO) {
             intentInterpreter.interpret(intent) { action ->

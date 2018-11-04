@@ -27,6 +27,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
+    // ViewModel must be injected here to allow the same instance to be shared with the fragments
     private val DashboardViewModel: DashboardViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,8 +38,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        System.out.println("OnCreate called!")
         val host = NavHostFragment.create(R.navigation.nav_graph)
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.main_activity_fragment_container, host)
             .setPrimaryNavigationFragment(host)

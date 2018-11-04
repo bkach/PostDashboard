@@ -18,6 +18,9 @@
 
 package com.example.boris.postdashboard.viewmodel
 
+/**
+ * Base Interpreter class used to transform inputs into outputs via a callback
+ */
 abstract class Interpreter<INPUT, OUTPUT> {
     abstract suspend fun interpret(input: INPUT, callback: suspend (OUTPUT) -> Unit)
 }

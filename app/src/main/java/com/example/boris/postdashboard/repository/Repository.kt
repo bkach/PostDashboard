@@ -24,10 +24,20 @@ import com.example.boris.postdashboard.model.User
 import com.example.boris.postdashboard.viewmodel.CoroutineContextProvider
 import com.example.boris.postdashboard.viewmodel.Result
 import com.example.boris.postdashboard.viewmodel.Result.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import org.koin.standalone.KoinComponent
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * Repository used to fetch data from either the database or the network.
+ *
+ * The general rule is that if data cannot be found in the database, it should resort to a network call and
+ * finally an error.
+ *
+ * All requests for data come from the database to ensure a single source of truth.
+ */
 class Repository constructor(
     private val databaseRepository: DatabaseRepository,
     private val networkRepository: NetworkRepository,
@@ -36,6 +46,15 @@ class Repository constructor(
 
     override val coroutineContext: CoroutineContext
         get() = contextPool.IO
+
+    /**
+     * All three get functions work similarly:
+     *      - Attempt to get data from the database
+     *      - If there is an error, attempt the network
+     *      - If the network has an error, return an error
+     *      - If the network has a hit, save the data and load from the database
+     *      - If loading from the database again does not work, return an error
+     */
 
     // TODO: There's a fair bit of code duplication here - could this be done in a better way?
 
@@ -78,6 +97,13 @@ class Repository constructor(
         }
     }
 
+    /**
+     * Gets the details of a [Post]
+     *
+     * If getting users or comments results in an error, this function will return a [DetailsLoadingError]
+     *
+     * @return A Deferred [Result] containing a post with a user and a number of comments or a [DetailsLoadingError]
+     */
     fun getDetails(selectedPost: Post)  = async {
         val userResult: UsersResult = getUsers().await()
         val commentsResult: CommentsResult = getComments().await()
@@ -94,8 +120,10 @@ class Repository constructor(
         }
     }
 
-    fun createUpdatedPost(selectedPost: Post,
-                                  users: List<User>, comments: List<Comment>) : Post {
+    /**
+     * Updates the selected [Post] with its user name and number of comments
+     */
+    fun createUpdatedPost(selectedPost: Post, users: List<User>, comments: List<Comment>) : Post {
         val user = users.find { it.id == selectedPost.userId }
         val numComments = comments.filter { it.postId == selectedPost.id }.size
 
@@ -104,6 +132,10 @@ class Repository constructor(
 
         return selectedPost
     }
+
+    /**
+     * Result sealed classes, used to abstract requests for data
+     */
 
     sealed class UsersResult {
         data class UsersLoadedResult(val users: List<User>): UsersResult()

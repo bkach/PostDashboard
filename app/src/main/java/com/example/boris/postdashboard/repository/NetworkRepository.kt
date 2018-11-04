@@ -23,6 +23,9 @@ import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
 import com.example.boris.postdashboard.viewmodel.Result
 
+/**
+ * Repository for communicating with the Network
+ */
 open class NetworkRepository constructor(val service: RetrofitWrapper.JsonPlaceholderService) {
 
     suspend fun getPosts(success: suspend (List<Post>) -> Result, error: () -> Result) : Result {

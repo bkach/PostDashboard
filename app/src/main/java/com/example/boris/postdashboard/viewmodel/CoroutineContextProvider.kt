@@ -22,6 +22,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * CoroutineContextProvider
+ *
+ * Class used to abstract out the [CouritineContext] from users in order to be able to test coroutines
+ */
 open class CoroutineContextProvider {
 
     private val job = Job()

@@ -20,10 +20,16 @@ package com.example.boris.postdashboard.viewmodel
 
 import com.example.boris.postdashboard.model.Post
 
+/**
+ * An class which describes an Intent from the UI
+ */
 sealed class Intent {
     object InitialIntent : Intent()
     data class SelectPostIntent(val selectedPost: Post) : Intent()
 
+    /**
+     * Maps [Intent]s to [Action]s
+     */
     class IntentInterpreter : Interpreter<Intent, Action>() {
         override suspend fun interpret(input: Intent, callback: suspend (Action) -> Unit) {
             callback(

@@ -22,10 +22,17 @@ import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.repository.Repository
 import org.koin.standalone.KoinComponent
 
+/**
+ * Action which signifies the action the app should take upon receiving an Intent
+ */
 sealed class Action {
     object LoadPostsAction : Action()
     data class ShowDetailViewAction(val selectedPost: Post): Action()
 
+    /**
+     * Interprets [Action]s and returns a result of the action in the form of a [Result]. These actions are largely
+     * performed Asynchronously using coroutines.
+     */
     class ActionInterpreter(val repository: Repository) : Interpreter<Action, Result>(), KoinComponent {
         override suspend fun interpret(input: Action, callback: suspend (Result) -> Unit) {
             callback(

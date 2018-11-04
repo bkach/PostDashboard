@@ -24,6 +24,11 @@ import com.example.boris.postdashboard.model.Comment
 import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
 
+/**
+ * Database containing post data.
+ *
+ * It stores a table for each entity in the database
+ */
 @Database(entities = [Comment::class, Post::class, User::class], version = 1, exportSchema = false)
 abstract class PostDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao

@@ -25,6 +25,9 @@ import org.koin.androidx.viewmodel.ext.koin.viewModel
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext.startKoin
 
+/**
+ * Class used primarily for creating and holding the Koin Module for Dependency Injection
+ */
 class Application : Application() {
     override fun onCreate() {
         super.onCreate()

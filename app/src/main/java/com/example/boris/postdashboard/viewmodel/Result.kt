@@ -20,6 +20,9 @@ package com.example.boris.postdashboard.viewmodel
 
 import com.example.boris.postdashboard.model.Post
 
+/**
+ * The Result of an [Action]s operation
+ */
 sealed class Result {
     data class LoadPostsResult(val posts: List<Post>): Result()
     data class LoadDetailsResult(val post: Post): Result()
@@ -28,6 +31,11 @@ sealed class Result {
     object DetailsLoading : Result()
     object DetailsLoadingError : Result()
 
+    /**
+     * Maps [Result]s to [State]s
+     *
+     * Note that same results end up with the same state, namely [State.Error]
+     */
     class ResultInterpreter : Interpreter<Result, State>() {
         override suspend fun interpret(input: Result, callback: suspend (State) -> Unit) {
             callback(

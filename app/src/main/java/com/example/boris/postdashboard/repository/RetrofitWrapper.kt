@@ -28,6 +28,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
+/**
+ * Wrapper class for obtaining a Retrofit service
+ */
 class RetrofitWrapper {
     companion object {
         fun getJsonPlaceholderService(): JsonPlaceholderService = Retrofit.Builder()

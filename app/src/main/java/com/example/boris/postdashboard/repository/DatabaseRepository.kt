@@ -24,6 +24,9 @@ import com.example.boris.postdashboard.model.User
 import com.example.boris.postdashboard.viewmodel.Result
 import org.koin.standalone.KoinComponent
 
+/**
+ * Repository for communicating with the Room database
+ */
 open class DatabaseRepository constructor(val database: PostDatabase): KoinComponent {
 
     suspend fun getPosts(success: (List<Post>) -> Result, error: suspend () -> Result) : Result {

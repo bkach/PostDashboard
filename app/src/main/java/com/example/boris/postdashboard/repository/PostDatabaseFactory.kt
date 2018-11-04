@@ -22,6 +22,11 @@ import android.content.Context
 import androidx.room.Room
 import org.koin.standalone.KoinComponent
 
+/**
+ * Factory for building a database.
+ *
+ * This class is meant to abstract database creation from the Application class, where it is injected
+ */
 class PostDatabaseFactory constructor(val context: Context) : KoinComponent {
    fun createDatabase() : PostDatabase {
        return Room.databaseBuilder(context, PostDatabase::class.java, "post-db").build()
