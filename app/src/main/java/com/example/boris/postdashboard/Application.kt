@@ -1,12 +1,8 @@
 package com.example.boris.postdashboard
 
 import android.app.Application
-import androidx.room.Room
 import com.example.boris.postdashboard.repository.*
-import com.example.boris.postdashboard.viewmodel.Action
-import com.example.boris.postdashboard.viewmodel.Intent
-import com.example.boris.postdashboard.viewmodel.Result
-import com.example.boris.postdashboard.viewmodel.ViewModel
+import com.example.boris.postdashboard.viewmodel.*
 import org.koin.androidx.viewmodel.ext.koin.viewModel
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext.startKoin
@@ -16,12 +12,13 @@ class Application : Application() {
         super.onCreate()
         startKoin(listOf(module {
             single { Intent.IntentInterpreter() }
-            single { Action.ActionInterpreter() }
+            single { Action.ActionInterpreter(get()) }
             single { Result.ResultInterpreter() }
             single { NetworkRepository(RetrofitWrapper.getJsonPlaceholderService())}
             single { DatabaseRepository(PostDatabaseFactory(applicationContext).createDatabase()) }
-            single { Repository(get(), get()) }
-            viewModel { ViewModel(get(), get(), get(), get()) }
+            single { Repository(get(), get(), get()) }
+            single { CoroutineContextProvider() }
+            viewModel { DashboardViewModel(get(), get(), get(), get()) }
         }))
     }
 }

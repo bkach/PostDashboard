@@ -3,6 +3,7 @@ package com.example.boris.postdashboard.repository
 import com.example.boris.postdashboard.model.Comment
 import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
+import com.example.boris.postdashboard.viewmodel.CoroutineContextProvider
 import com.example.boris.postdashboard.viewmodel.Result
 import com.example.boris.postdashboard.viewmodel.Result.*
 import kotlinx.coroutines.*
@@ -11,12 +12,14 @@ import kotlin.coroutines.CoroutineContext
 
 class Repository constructor(
     private val databaseRepository: DatabaseRepository,
-    private val networkRepository: NetworkRepository
+    private val networkRepository: NetworkRepository,
+    private val contextPool: CoroutineContextProvider
 ) : CoroutineScope, KoinComponent {
 
-    val job = Job()
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+        get() = contextPool.IO
+
+    // TODO: There's a fair bit of code duplication here - could this be done in a better way?
 
     fun getPosts(): Deferred<Result> = async {
         databaseRepository.getPosts({ LoadPostsResult(it) }) {
@@ -67,13 +70,13 @@ class Repository constructor(
                     Result.LoadDetailsResult(
                         createUpdatedPost(selectedPost, userResult.users, commentsResult.comments)
                     )
-                CommentsResult.CommentsLoadingError -> DetailsLoadingError
+                else -> DetailsLoadingError
             }
-            UsersResult.UserLoadingError -> DetailsLoadingError
+            else -> DetailsLoadingError
         }
     }
 
-    private fun createUpdatedPost(selectedPost: Post,
+    fun createUpdatedPost(selectedPost: Post,
                                   users: List<User>, comments: List<Comment>) : Post {
         val user = users.find { it.id == selectedPost.userId }
         val numComments = comments.filter { it.postId == selectedPost.id }.size

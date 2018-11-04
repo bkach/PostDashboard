@@ -6,14 +6,13 @@ import com.example.boris.postdashboard.model.User
 import com.example.boris.postdashboard.viewmodel.Result
 
 class NetworkRepository constructor(val service: RetrofitWrapper.JsonPlaceholderService) {
+
     suspend fun getPosts(success: suspend (List<Post>) -> Result, error: () -> Result) : Result {
         val postsResponse = service.getPosts().await()
 
         return if (postsResponse.isSuccessful && postsResponse.body() != null) {
-            System.out.println("bdebug posts Network hit!")
             success(postsResponse.body()!!)
         } else {
-            System.out.println("bdebug posts Network miss!")
             error()
         }
     }
@@ -23,10 +22,8 @@ class NetworkRepository constructor(val service: RetrofitWrapper.JsonPlaceholder
         val usersResponse = service.getUsers().await()
 
         return if (usersResponse.isSuccessful && usersResponse.body() != null) {
-            System.out.println("bdebug users Network hit!")
             success(usersResponse.body()!!)
         } else {
-            System.out.println("bdebug users Network miss!")
             error()
         }
     }
@@ -36,10 +33,8 @@ class NetworkRepository constructor(val service: RetrofitWrapper.JsonPlaceholder
         val commentsResponse = service.getComments().await()
 
         return if (commentsResponse.isSuccessful && commentsResponse.body() != null) {
-            System.out.println("bdebug comments Network hit!")
             success(commentsResponse.body()!!)
         } else {
-            System.out.println("bdebug comments Network miss!")
             error()
         }
     }

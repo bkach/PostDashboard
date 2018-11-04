@@ -6,16 +6,14 @@ import com.example.boris.postdashboard.model.User
 import com.example.boris.postdashboard.viewmodel.Result
 import org.koin.standalone.KoinComponent
 
-class DatabaseRepository constructor(private val database: PostDatabase): KoinComponent {
+class DatabaseRepository constructor(val database: PostDatabase): KoinComponent {
 
     suspend fun getPosts(success: (List<Post>) -> Result, error: suspend () -> Result) : Result {
         val posts = database.postDao().loadPosts()
 
         return if (!posts.isNullOrEmpty()) {
-            System.out.println("bdebug Posts Database Hit!")
             success(posts)
         } else {
-            System.out.println("bdebug Posts Database Miss!")
             error()
         }
     }
@@ -25,10 +23,8 @@ class DatabaseRepository constructor(private val database: PostDatabase): KoinCo
         val users = database.postDao().loadUsers()
 
         return if (!users.isNullOrEmpty()) {
-            System.out.println("bdebug users Database Hit!")
             success(users)
         } else {
-            System.out.println("bdebug users Database Miss!")
             error()
         }
     }
@@ -38,10 +34,8 @@ class DatabaseRepository constructor(private val database: PostDatabase): KoinCo
         val comments = database.postDao().loadComments()
 
         return if (!comments.isNullOrEmpty()) {
-            System.out.println("bdebug comments Database Hit!")
             success(comments)
         } else {
-            System.out.println("bdebug commentsDatabase Miss!")
             error()
         }
     }

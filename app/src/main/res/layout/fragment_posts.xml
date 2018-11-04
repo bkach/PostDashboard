@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/post_list_swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.MainActivity">
+        tools:context=".ui.PostsFragment">
 
-    <FrameLayout
-            android:id="@+id/main_activity_fragment_container"
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/post_list_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-</FrameLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

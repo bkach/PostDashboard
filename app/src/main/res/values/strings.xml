@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PostDashboard</string>
+	<string name="error_string">Error, please try again later</string>
 </resources>

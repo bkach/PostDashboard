@@ -9,8 +9,7 @@ sealed class Action {
     object LoadPostsAction : Action()
     data class ShowDetailViewAction(val selectedPost: Post): Action()
 
-    class ActionInterpreter : Interpreter<Action, Result>(), KoinComponent {
-        val repository: Repository by inject()
+    class ActionInterpreter(val repository: Repository) : Interpreter<Action, Result>(), KoinComponent {
 
         override suspend fun interpret(input: Action, callback: suspend (Result) -> Unit) {
             callback(
