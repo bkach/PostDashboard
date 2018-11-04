@@ -16,14 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.example.boris.postdashboard.viewmodel
+package com.example.boris.postdashboard
 
-import com.example.boris.postdashboard.model.Post
+import android.view.View
+import androidx.recyclerview.widget.RecyclerView
+import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.ViewAssertion
+import androidx.test.espresso.matcher.ViewMatchers.assertThat
+import org.hamcrest.Matcher
 
-sealed class State {
-    object Error : State()
-    data class PostsLoaded(val posts: List<Post>) : State()
-    data class DetailsLoaded(val post: Post) : State()
-    object PostsLoading : State()
-    object DetailsLoading : State()
+class RecyclerViewItemCountAssertion(val matcher: Matcher<Int?>) : ViewAssertion {
+    override fun check(view: View?, noViewFoundException: NoMatchingViewException?) {
+        if (noViewFoundException != null) {
+            throw noViewFoundException
+        }
+
+        val recyclerview = view as RecyclerView
+        assertThat(recyclerview.adapter?.itemCount, matcher)
+    }
+
 }

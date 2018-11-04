@@ -1,3 +1,21 @@
+/*
+ * PostDashboard
+ * Copyright (C) 2018 Boris Kachscovsky
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
@@ -14,13 +32,21 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    packagingOptions {
+        pickFirst 'mockito-extensions/org.mockito.plugins.MockMaker'
+    }
+
+    testOptions {
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 }
 
@@ -29,16 +55,34 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0-alpha1'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    // Core test library
+    androidTestImplementation 'androidx.test:core:1.0.0'
+
+    // AndroidJUnitRunner and JUnit Rules
+    androidTestImplementation 'androidx.test:runner:1.1.0'
+    androidTestImplementation 'androidx.test:rules:1.1.0'
+    androidTestUtil 'androidx.test:orchestrator:1.1.0'
+
+    // Assertions
+    androidTestImplementation 'androidx.test.ext:junit:1.0.0'
+
+    // Espresso dependencies
+    implementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation('androidx.test.espresso:espresso-contrib:3.1.0') {
+        exclude module: 'support-annotations'
+        exclude module: 'support-v4'
+        exclude module: 'support-v13'
+        exclude module: 'recyclerview'
+        exclude module: 'design'
+        exclude module: 'material'
+    }
 
     // ViewModel and LiveData
     def lifecycle_version = "2.0.0"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
-    testImplementation "android.arch.core:core-testing:$lifecycle_version"
+    testImplementation 'androidx.arch.core:core-testing:2.0.0'
 
     // Room
     def room_version = "2.1.0-alpha02"
@@ -55,6 +99,7 @@ dependencies {
     implementation "org.koin:koin-androidx-scope:$koin_version"
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
     testImplementation "org.koin:koin-test:$koin_version"
+    androidTestImplementation "org.koin:koin-test:$koin_version"
 
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
@@ -65,9 +110,10 @@ dependencies {
 
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
 
     // Mockito
-    testImplementation "org.mockito:mockito-core:2.21.0"
+    testImplementation "org.mockito:mockito-core:2.23.0"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC3"
+    androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC3"
 }
