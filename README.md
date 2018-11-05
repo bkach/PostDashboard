@@ -12,11 +12,21 @@ The app shows a list of posts from [JsonPlaceholder](http://jsonplaceholder.typi
 
 The hastily drawn diagram above illustrates how the Architecture for the App works. Essentially this is a slimmed down version of [MVI](https://www.youtube.com/watch?v=64rQ9GKphTg).
 
-In essence there are three layers: UI, View Model, and Repository. Users send an `Intent` through the View Model layer which are later emitted by a `State`. The `State` is emitted via a `LiveData`, and is all the UI layer needs to do is observe it in order to figure out what to display.
+There are three layers to the app, namely the UI, View Model, and Repository layers. Users send an `Intent` through the View Model layer which are later emitted by a `State`. The `State` is emitted via a `LiveData`, and is all the UI layer needs to do is observe it in order to figure out what to display.
 
 The View Model layer is (importantly) unidirectional, and takes intents, maps them to actions, performs the actions, and returns results. Those results are finally mapped to the `State`.
 
-These mappings occur in an `Interpreter` which exists in each step along the way. For example, the `ActionInterpreter` which takes an `Action` and produces a `Result`.
+These mappings occur in an `Interpreter` which exists in each step along the way. For example, the `ActionInterpreter` which takes an `Action` and produces a `Result`. Below is a method in the `ViewModel` which exemplifies this process:
+
+    fun sendIntent(intent: Intent) {
+        launch(contextPool.IO) {
+            intentInterpreter.interpret(intent) { action ->
+                actionInterpreter.interpret(action) { result ->
+                    resultInterpreter.interpret(result, ::changeState)
+                }
+            }
+        }
+    }
 
 The Repository layer contains a `Repository` which is the logic of how the app gets data. Data is initially loaded from the network, but subsequently saved to a Database until that data is no longer viable. At the present there is no invalidation logic.
 
