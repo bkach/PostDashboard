@@ -18,15 +18,17 @@ The View Model layer is (importantly) unidirectional, and takes intents, maps th
 
 These mappings occur in an `Interpreter` which exists in each step along the way. For example, the `ActionInterpreter` which takes an `Action` and produces a `Result`. Below is a method in the `ViewModel` which exemplifies this process:
 
-    fun sendIntent(intent: Intent) {
-        launch(contextPool.IO) {
-            intentInterpreter.interpret(intent) { action ->
-                actionInterpreter.interpret(action) { result ->
-                    resultInterpreter.interpret(result, ::changeState)
-                }
+```kotlin
+fun sendIntent(intent: Intent) {
+    launch(contextPool.IO) {
+        intentInterpreter.interpret(intent) { action ->
+            actionInterpreter.interpret(action) { result ->
+                resultInterpreter.interpret(result, ::changeState)
             }
         }
     }
+}
+```
 
 The Repository layer contains a `Repository` which is the logic of how the app gets data. Data is initially loaded from the network, but subsequently saved to a Database until that data is no longer viable. At the present there is no invalidation logic.
 
