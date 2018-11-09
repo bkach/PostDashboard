@@ -27,7 +27,6 @@ import com.example.boris.postdashboard.viewmodel.Result
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -79,7 +78,7 @@ class RepositoryTests {
 
             val result = repository.getDetails(post).await()
 
-            assertEquals(Result.LoadDetailsResult(post), result)
+            assertEquals(Result.DetailsLoadResult(post), result)
         }
     }
 
@@ -87,7 +86,7 @@ class RepositoryTests {
     fun `when getting details, return error result if user results fails`() {
         runBlocking {
             whenever(databaseRepository.getUsers(anyOrNull(), anyOrNull())).thenReturn(
-                Repository.UsersResult.UserLoadingError
+                Repository.UsersResult.UserLoadingError("Error")
             )
 
             whenever(databaseRepository.getComments(anyOrNull(), anyOrNull())).thenReturn(
@@ -96,7 +95,7 @@ class RepositoryTests {
 
             val result = repository.getDetails(post).await()
 
-            assertEquals(Result.DetailsLoadingError, result)
+            assertEquals(Result.DetailsLoadingError("Error"), result)
         }
     }
 
@@ -108,12 +107,12 @@ class RepositoryTests {
             )
 
             whenever(databaseRepository.getComments(anyOrNull(), anyOrNull())).thenReturn(
-                Repository.CommentsResult.CommentsLoadingError
+                Repository.CommentsResult.CommentsLoadingError("Error")
             )
 
             val result = repository.getDetails(post).await()
 
-            assertEquals(Result.DetailsLoadingError, result)
+            assertEquals(Result.DetailsLoadingError("Error"), result)
         }
     }
 

@@ -23,6 +23,8 @@ import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import kotlinx.coroutines.Deferred
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -34,10 +36,17 @@ import retrofit2.http.GET
 class RetrofitWrapper {
     companion object {
         fun getJsonPlaceholderService(): JsonPlaceholderService = Retrofit.Builder()
-            .baseUrl("http://jsonplaceholder.typicode.com")
+            .baseUrl("https://jsonplaceholder.typicode.com")
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .addConverterFactory(GsonConverterFactory.create())
+            .client(buildLoggingClient())
             .build().create(JsonPlaceholderService::class.java)
+
+        private fun buildLoggingClient(): OkHttpClient {
+            val loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+            return OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
+        }
     }
 
     interface JsonPlaceholderService {

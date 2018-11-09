@@ -92,7 +92,7 @@ class PostsFragment : Fragment() {
         dashboardViewModel.state.removeObservers(this)
         dashboardViewModel.state.observe(this, Observer { state ->
             when (state) {
-                State.Error -> {
+                is State.Error -> {
                     setLoadingSpinner(false)
                     showError()
                 }

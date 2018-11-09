@@ -43,7 +43,7 @@ class MockRepositoryWrapper {
     private fun mockGetDetails() {
         whenever(repository.getDetails(anyOrNull())).then { runBlocking {
             CompletableDeferred(
-                Result.LoadDetailsResult(
+                Result.DetailsLoadResult(
                     mockPost
                 )
             )
@@ -53,7 +53,7 @@ class MockRepositoryWrapper {
     private fun mockGetPosts() {
         whenever(repository.getPosts()).then { runBlocking {
             CompletableDeferred(
-                Result.LoadPostsResult(
+                Result.PostsLoadResult(
                     listOf(mockPost)
                 )
             )
@@ -63,7 +63,7 @@ class MockRepositoryWrapper {
     fun mockError() {
         whenever(repository.getPosts()).then { runBlocking {
             CompletableDeferred(
-                Result.PostLoadingError
+                Result.PostsLoadingError("Error")
             )
         }}
     }

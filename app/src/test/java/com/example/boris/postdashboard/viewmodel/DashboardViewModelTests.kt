@@ -71,7 +71,7 @@ class DashboardViewModelTests {
         repositoryWrapper.mockError()
         viewModel.sendIntent(Intent.InitialIntent)
         viewModel.state.observeForever {
-            assertEquals(State.Error, it)
+            assertEquals(State.Error("Error"), it)
         }
     }
 

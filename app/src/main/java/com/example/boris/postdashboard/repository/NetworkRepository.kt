@@ -22,41 +22,44 @@ import com.example.boris.postdashboard.model.Comment
 import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
 import com.example.boris.postdashboard.viewmodel.Result
+import kotlinx.coroutines.Deferred
+import retrofit2.Response
 
 /**
  * Repository for communicating with the Network
  */
-open class NetworkRepository constructor(val service: RetrofitWrapper.JsonPlaceholderService) {
+open class NetworkRepository constructor(private val service: RetrofitWrapper.JsonPlaceholderService) {
 
-    suspend fun getPosts(success: suspend (List<Post>) -> Result, error: () -> Result) : Result {
-        val postsResponse = service.getPosts().await()
+    private suspend fun <T,R> processData(
+        deferredData: Deferred<Response<List<T>>>,
+        success: suspend (List<T>) -> R,
+        error: (String) -> R) : R {
 
-        return if (postsResponse.isSuccessful && postsResponse.body() != null) {
-            success(postsResponse.body()!!)
+        val data: Response<List<T>>
+
+        try {
+            data = deferredData.await()
+        } catch (e: Exception) {
+            return error("${javaClass.simpleName}: ${e.message}")
+        }
+
+        val body = data.body()
+
+        return if (data.isSuccessful && !body.isNullOrEmpty()) {
+            success(body)
         } else {
-            error()
+            error("${javaClass.simpleName}: Fetch Data Unsuccessful")
         }
     }
 
-    suspend fun getUsers(success: suspend (List<User>) -> Repository.UsersResult,
-                         error: () -> Repository.UsersResult) : Repository.UsersResult{
-        val usersResponse = service.getUsers().await()
+    open suspend fun getPosts(success: suspend (List<Post>) -> Result, error: (String) -> Result) : Result =
+        processData(service.getPosts(), success, error)
 
-        return if (usersResponse.isSuccessful && usersResponse.body() != null) {
-            success(usersResponse.body()!!)
-        } else {
-            error()
-        }
-    }
+    open suspend fun getUsers(success: suspend (List<User>) -> Repository.UsersResult,
+                         error: (String) -> Repository.UsersResult) : Repository.UsersResult =
+        processData(service.getUsers(), success, error)
 
-    suspend fun getComments(success: suspend (List<Comment>) -> Repository.CommentsResult,
-                            error: () -> Repository.CommentsResult) : Repository.CommentsResult{
-        val commentsResponse = service.getComments().await()
-
-        return if (commentsResponse.isSuccessful && commentsResponse.body() != null) {
-            success(commentsResponse.body()!!)
-        } else {
-            error()
-        }
-    }
+    open suspend fun getComments(success: suspend (List<Comment>) -> Repository.CommentsResult,
+                            error: (String) -> Repository.CommentsResult) : Repository.CommentsResult =
+        processData(service.getComments(), success, error)
 }

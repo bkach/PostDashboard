@@ -45,7 +45,7 @@ class ResultInterpreterTests {
                 assertEquals(State.PostsLoaded(listOf(mockRepositoryWrapper.mockPost)), state)
             }
 
-            resultInterpreter.interpret(Result.LoadPostsResult(listOf(mockRepositoryWrapper.mockPost)),
+            resultInterpreter.interpret(Result.PostsLoadResult(listOf(mockRepositoryWrapper.mockPost)),
                 callback)
         }
     }

@@ -19,16 +19,19 @@
 package com.example.boris.postdashboard.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import com.example.boris.postdashboard.R
 import com.example.boris.postdashboard.viewmodel.DashboardViewModel
+import com.example.boris.postdashboard.viewmodel.State
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
     // ViewModel must be injected here to allow the same instance to be shared with the fragments
-    private val DashboardViewModel: DashboardViewModel by viewModel()
+    private val viewModel: DashboardViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,5 +47,17 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.main_activity_fragment_container, host)
             .setPrimaryNavigationFragment(host)
             .commit()
+
+        logErrors()
+    }
+
+    // TODO: Include errors in any future analytics
+    private fun logErrors() {
+        viewModel.state.observe(this,
+            Observer<State> { state ->
+                when(state) {
+                    is State.Error -> Log.e(javaClass.simpleName, state.message)
+                }
+            })
     }
 }

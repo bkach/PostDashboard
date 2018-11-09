@@ -56,12 +56,12 @@ class NetworkRepositoryTests {
 
         runBlocking {
             val result = networkRepository.getPosts( {
-                Result.LoadPostsResult(it)
+                Result.PostsLoadResult(it)
             }, {
-                Result.PostLoadingError
+                Result.PostsLoadingError("Error")
             } )
 
-            assertEquals(Result.LoadPostsResult(listOf(post)), result)
+            assertEquals(Result.PostsLoadResult(listOf(post)), result)
         }
     }
 
@@ -75,12 +75,12 @@ class NetworkRepositoryTests {
 
         runBlocking {
             val result = networkRepository.getPosts( {
-                Result.LoadPostsResult(it)
+                Result.PostsLoadResult(it)
             }, {
-                Result.PostLoadingError
+                Result.PostsLoadingError("Error")
             } )
 
-            assertEquals(Result.PostLoadingError, result)
+            assertEquals(Result.PostsLoadingError("Error"), result)
         }
     }
 

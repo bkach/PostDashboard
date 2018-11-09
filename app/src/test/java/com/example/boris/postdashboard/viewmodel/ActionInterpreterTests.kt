@@ -56,7 +56,7 @@ class ActionInterpreterTests {
                 if (timesCalled == 1) {
                     assertEquals(Result.PostsLoading, result)
                 } else {
-                    assertEquals(Result.LoadPostsResult(listOf(repositoryWrapper.mockPost)), result)
+                    assertEquals(Result.PostsLoadResult(listOf(repositoryWrapper.mockPost)), result)
                 }
             }
 
@@ -75,7 +75,7 @@ class ActionInterpreterTests {
                 if (timesCalled == 1) {
                     assertEquals(Result.DetailsLoading, result)
                 } else {
-                    assertEquals(Result.LoadDetailsResult(repositoryWrapper.mockPost), result)
+                    assertEquals(Result.DetailsLoadResult(repositoryWrapper.mockPost), result)
                 }
             }
 

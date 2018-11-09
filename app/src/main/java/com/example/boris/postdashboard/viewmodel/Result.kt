@@ -24,12 +24,12 @@ import com.example.boris.postdashboard.model.Post
  * The Result of an [Action]s operation
  */
 sealed class Result {
-    data class LoadPostsResult(val posts: List<Post>): Result()
-    data class LoadDetailsResult(val post: Post): Result()
-    object PostLoadingError : Result()
+    data class PostsLoadResult(val posts: List<Post>): Result()
+    data class DetailsLoadResult(val post: Post): Result()
+    data class PostsLoadingError(val message: String) : Result()
+    data class DetailsLoadingError(val message: String) : Result()
     object PostsLoading : Result()
     object DetailsLoading : Result()
-    object DetailsLoadingError : Result()
 
     /**
      * Maps [Result]s to [State]s
@@ -40,12 +40,12 @@ sealed class Result {
         override suspend fun interpret(input: Result, callback: suspend (State) -> Unit) {
             callback(
                 when(input) {
-                    is LoadPostsResult -> State.PostsLoaded(input.posts)
+                    is PostsLoadResult -> State.PostsLoaded(input.posts)
                     is PostsLoading -> State.PostsLoading
                     is DetailsLoading -> State.DetailsLoading
-                    is PostLoadingError -> State.Error
-                    is LoadDetailsResult -> State.DetailsLoaded(input.post)
-                    is DetailsLoadingError -> State.Error
+                    is PostsLoadingError -> State.Error(input.message)
+                    is DetailsLoadResult -> State.DetailsLoaded(input.post)
+                    is DetailsLoadingError -> State.Error(input.message)
                 }
             )
         }

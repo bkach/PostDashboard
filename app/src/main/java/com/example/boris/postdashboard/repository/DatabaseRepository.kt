@@ -27,39 +27,31 @@ import org.koin.standalone.KoinComponent
 /**
  * Repository for communicating with the Room database
  */
-open class DatabaseRepository constructor(val database: PostDatabase): KoinComponent {
+open class DatabaseRepository constructor(private val database: PostDatabase): KoinComponent {
 
-    suspend fun getPosts(success: (List<Post>) -> Result, error: suspend () -> Result) : Result {
-        val posts = database.postDao().loadPosts()
+    private suspend fun <T,R> processData(
+        data: List<T>,
+        success: (List<T>) -> R,
+        error: suspend (String) -> R) : R {
 
-        return if (!posts.isNullOrEmpty()) {
-            success(posts)
+        return if (!data.isNullOrEmpty()) {
+            success(data)
         } else {
-            error()
+            error("${javaClass.simpleName}: Load from Database Error")
         }
     }
 
-    suspend fun getUsers(success: (List<User>) -> Repository.UsersResult,
-                         error: suspend () -> Repository.UsersResult) : Repository.UsersResult{
-        val users = database.postDao().loadUsers()
+    open suspend fun getPosts(success: (List<Post>) -> Result,
+                              error: suspend (String) -> Result) : Result =
+        processData(database.postDao().loadPosts(), success, error)
 
-        return if (!users.isNullOrEmpty()) {
-            success(users)
-        } else {
-            error()
-        }
-    }
+    open suspend fun getUsers(success: (List<User>) -> Repository.UsersResult,
+                              error: suspend (String) -> Repository.UsersResult) : Repository.UsersResult =
+        processData(database.postDao().loadUsers(), success, error)
 
-    suspend fun getComments(success: (List<Comment>) -> Repository.CommentsResult,
-                            error: suspend () -> Repository.CommentsResult) : Repository.CommentsResult {
-        val comments = database.postDao().loadComments()
-
-        return if (!comments.isNullOrEmpty()) {
-            success(comments)
-        } else {
-            error()
-        }
-    }
+    open suspend fun getComments(success: (List<Comment>) -> Repository.CommentsResult,
+                                 error: suspend (String) -> Repository.CommentsResult) : Repository.CommentsResult =
+        processData(database.postDao().loadComments(), success, error)
 
     fun savePosts(posts: List<Post>) {
         database.postDao().savePosts(posts)

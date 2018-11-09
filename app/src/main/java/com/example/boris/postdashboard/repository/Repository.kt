@@ -38,7 +38,7 @@ import kotlin.coroutines.CoroutineContext
  *
  * All requests for data come from the database to ensure a single source of truth.
  */
-class Repository constructor(
+open class Repository constructor(
     private val databaseRepository: DatabaseRepository,
     private val networkRepository: NetworkRepository,
     private val contextPool: CoroutineContextProvider
@@ -58,41 +58,41 @@ class Repository constructor(
 
     // TODO: There's a fair bit of code duplication here - could this be done in a better way?
 
-    fun getPosts(): Deferred<Result> = async {
-        databaseRepository.getPosts({ LoadPostsResult(it) }) {
+    open fun getPosts(): Deferred<Result> = async {
+        databaseRepository.getPosts({ PostsLoadResult(it) }) {
             networkRepository.getPosts({
                 databaseRepository.savePosts(it)
-                databaseRepository.getPosts( { LoadPostsResult(it) }) {
-                    PostLoadingError
+                databaseRepository.getPosts( { PostsLoadResult(it) }) {
+                    PostsLoadingError(it)
                 }
             }) {
-                PostLoadingError
+                PostsLoadingError(it)
             }
         }
     }
 
-    private fun getUsers(): Deferred<UsersResult> = async {
+    open fun getUsers(): Deferred<UsersResult> = async {
         databaseRepository.getUsers( { UsersResult.UsersLoadedResult(it) } ) {
             networkRepository.getUsers({
                 databaseRepository.saveUsers(it)
                 databaseRepository.getUsers( { UsersResult.UsersLoadedResult(it) } ) {
-                    UsersResult.UserLoadingError
+                    UsersResult.UserLoadingError(it)
                 }
             }) {
-                UsersResult.UserLoadingError
+                UsersResult.UserLoadingError(it)
             }
         }
     }
 
-    private fun getComments(): Deferred<CommentsResult> = async {
+    open fun getComments(): Deferred<CommentsResult> = async {
         databaseRepository.getComments( { CommentsResult.CommentsLoadedResult(it) } ) {
             networkRepository.getComments({
                 databaseRepository.saveComments(it)
                 databaseRepository.getComments( { CommentsResult.CommentsLoadedResult(it) } ) {
-                    CommentsResult.CommentsLoadingError
+                    CommentsResult.CommentsLoadingError(it)
                 }
             }) {
-                CommentsResult.CommentsLoadingError
+                CommentsResult.CommentsLoadingError(it)
             }
         }
     }
@@ -111,12 +111,12 @@ class Repository constructor(
         when (userResult) {
             is UsersResult.UsersLoadedResult -> when (commentsResult) {
                 is CommentsResult.CommentsLoadedResult ->
-                    Result.LoadDetailsResult(
+                    Result.DetailsLoadResult(
                         createUpdatedPost(selectedPost, userResult.users, commentsResult.comments)
                     )
-                else -> DetailsLoadingError
+                is CommentsResult.CommentsLoadingError -> DetailsLoadingError(commentsResult.message)
             }
-            else -> DetailsLoadingError
+            is UsersResult.UserLoadingError -> DetailsLoadingError(userResult.message)
         }
     }
 
@@ -139,11 +139,11 @@ class Repository constructor(
 
     sealed class UsersResult {
         data class UsersLoadedResult(val users: List<User>): UsersResult()
-        object UserLoadingError: UsersResult()
+        data class UserLoadingError(val message: String): UsersResult()
     }
 
     sealed class CommentsResult {
         data class CommentsLoadedResult(val comments: List<Comment>): CommentsResult()
-        object CommentsLoadingError: CommentsResult()
+        data class CommentsLoadingError(val message: String): CommentsResult()
     }
 }
