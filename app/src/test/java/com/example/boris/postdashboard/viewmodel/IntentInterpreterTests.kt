@@ -19,10 +19,8 @@
 package com.example.boris.postdashboard.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
 import com.example.boris.postdashboard.model.Post
-import com.example.boris.postdashboard.viewmodel.Action
-import com.example.boris.postdashboard.viewmodel.Intent
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -41,25 +39,44 @@ class IntentInterpreterTests {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private val intentInterpreter = Intent.IntentInterpreter()
-    private val post: Post = mock()
 
     @Test
-    fun `When sending an initial intent, a load posts action should be returned`() {
+    fun `When sending load post intent, a load posts action should be returned`() {
         runBlocking {
             val callback: suspend (Action) -> Unit = {action ->
                 assertEquals(Action.LoadPostsAction, action)
             }
-            intentInterpreter.interpret(Intent.InitialIntent, callback)
+            intentInterpreter.interpret(Intent.LoadPostData, callback)
         }
     }
 
     @Test
-    fun `When sending a select post intent, a show detail view action should be returned`() {
+    fun `When sending select post intent, a show detail view action should be returned`() {
         runBlocking {
             val callback: suspend (Action) -> Unit = {action ->
-                assertEquals(Action.ShowDetailViewAction(post), action)
+                assertEquals(Action.ShowDetailViewAction(mockMetadata[0]), action)
             }
-            intentInterpreter.interpret(Intent.SelectPostIntent(post), callback)
+            intentInterpreter.interpret(Intent.SelectPostIntent(mockMetadata[0]), callback)
+        }
+    }
+
+    @Test
+    fun `When sending leave detail intent, a show posts without loading action should be returned`() {
+        runBlocking {
+            val callback: suspend (Action) -> Unit = {action ->
+                assertEquals(Action.ShowPostsWithoutLoading, action)
+            }
+            intentInterpreter.interpret(Intent.LeaveDetailIntent, callback)
+        }
+    }
+
+    @Test
+    fun `When sending comment tapped intent, a show or hide comment action should be returned`() {
+        runBlocking {
+            val callback: suspend (Action) -> Unit = {action ->
+                assertEquals(Action.ShowOrHideComment(true), action)
+            }
+            intentInterpreter.interpret(Intent.CommentTapped(true), callback)
         }
     }
 }

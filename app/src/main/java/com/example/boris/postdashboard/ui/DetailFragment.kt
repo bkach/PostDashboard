@@ -19,18 +19,24 @@
 package com.example.boris.postdashboard.ui
 
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.boris.postdashboard.R
 import com.example.boris.postdashboard.model.Post
+import com.example.boris.postdashboard.model.PostWithMetadata
 import com.example.boris.postdashboard.viewmodel.DashboardViewModel
+import com.example.boris.postdashboard.viewmodel.Intent
 import com.example.boris.postdashboard.viewmodel.State
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE
-import kotlinx.android.synthetic.main.fragment_detail.*
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.fragment_detail_initial.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 /**
@@ -41,14 +47,42 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 class DetailFragment : Fragment() {
 
     private val dashboardViewModel: DashboardViewModel by sharedViewModel()
+
+    private val initialConstraint = ConstraintSet()
+    private val commentsShownConstraint= ConstraintSet()
+    private val commentsHiddenConstraint = ConstraintSet()
+
     private var snackbar: Snackbar? = null
 
+    private val commentsAdapter = CommentsAdapter()
+
+    private var commentsVisible = false
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_detail, container, false)
+        return inflater.inflate(R.layout.fragment_detail_initial, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        disableRefresh()
+        setupRecyclerView()
         observeViewModelState()
+        setupAnimations(view)
+        setupCommentClickListener()
+    }
+
+    private fun setupRecyclerView() {
+        comments_recycler_view.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = commentsAdapter
+        }
+    }
+
+    private fun disableRefresh() {
+        detail_view_swipe_refresh_layout.setOnRefreshListener {
+            if (detail_view_swipe_refresh_layout.isRefreshing) {
+                detail_view_swipe_refresh_layout.isRefreshing = false
+            }
+        }
     }
 
     private fun observeViewModelState() {
@@ -69,18 +103,77 @@ class DetailFragment : Fragment() {
                         hideError()
                         setLoadingSpinner(true)
                     }
+                    is State.ShowComments -> {
+                        setFields(state.post)
+                        showComments()
+                    }
+                    is State.HideComments -> {
+                        setFields(state.post)
+                        hideComments()
+                    }
                 }
             })
     }
 
-    private fun setFields(post: Post) {
-        detail_name_text_view.text = post.userName
-        detail_body_text_view.text = post.body
-        detail_title_text_view.text = post.title
-        if (post.numComments != null) {
-            detail_num_comments_text_view.text = resources.getQuantityString(R.plurals.comments,
-                post.numComments!!, post.numComments!!)
+    private fun setupAnimations(view: View) {
+        initialConstraint.clone(detail_constraintlayout)
+        commentsShownConstraint.clone(context, R.layout.fragment_detail_comments_shown)
+        commentsHiddenConstraint.clone(context, R.layout.fragment_detail_default)
+
+        view.post {
+            animateIn()
         }
+    }
+
+    var applyInitialConstraint = {
+        commentsHiddenConstraint.applyTo(detail_constraintlayout)
+    }
+
+    private fun animateIn() {
+        TransitionManager.beginDelayedTransition(detail_constraintlayout)
+        applyInitialConstraint()
+    }
+
+    private fun setupCommentClickListener() {
+        val clickListener: View.OnClickListener = View.OnClickListener {
+            dashboardViewModel.sendIntent(Intent.CommentTapped(commentsVisible))
+        }
+
+        detail_num_comments_text_view.setOnClickListener(clickListener)
+        detail_comment_arrow.setOnClickListener(clickListener)
+    }
+
+    private fun setFields(data: PostWithMetadata) {
+        detail_name_text_view.text = resources.getString(R.string.authorString, data.userList?.get(0)?.name)
+        detail_body_text_view.text = data.post?.body
+        detail_title_text_view.text = data.post?.title
+
+        Picasso.get()
+            .load(data.photoList?.get(0)?.url)
+            .into(detail_imageview)
+
+        commentsAdapter.setComments(data.commentList)
+
+        val numComments = data.commentList?.size ?: 0
+        detail_num_comments_text_view.text = resources.getQuantityString(R.plurals.comments, numComments, numComments)
+    }
+
+    private fun showComments() {
+        TransitionManager.beginDelayedTransition(detail_constraintlayout)
+        applyInitialConstraint = {
+            commentsShownConstraint.applyTo(detail_constraintlayout)
+        }
+        applyInitialConstraint()
+        commentsVisible = true
+    }
+
+    private fun hideComments() {
+        TransitionManager.beginDelayedTransition(detail_constraintlayout)
+        applyInitialConstraint = {
+            commentsHiddenConstraint.applyTo(detail_constraintlayout)
+        }
+        applyInitialConstraint()
+        commentsVisible = false
     }
 
     private fun showError() {
@@ -96,4 +189,10 @@ class DetailFragment : Fragment() {
     private fun setLoadingSpinner(isLoading: Boolean) {
         detail_view_swipe_refresh_layout.isRefreshing = isLoading
     }
+
+    fun onBackPressed() {
+        System.out.println("bdebug back pressed")
+        dashboardViewModel.sendIntent(Intent.LeaveDetailIntent)
+    }
+
 }

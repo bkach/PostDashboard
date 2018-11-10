@@ -19,8 +19,14 @@
 package com.example.boris.postdashboard.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.boris.postdashboard.MockRepositoryWrapper
+import com.example.boris.postdashboard.mocks.MockRepositoryWrapper
 import com.example.boris.postdashboard.TestContextProvider
+import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
+import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -51,27 +57,43 @@ class DashboardViewModelTests {
     }
 
     @Test
-    fun `when sending the initial intent, return posts loaded state`() {
-        viewModel.sendIntent(Intent.InitialIntent)
-        viewModel.state.observeForever {
-            assertEquals(State.PostsLoaded(listOf(repositoryWrapper.mockPost)), it)
+    fun `on init, send initial load post intent`() {
+        val mockIntentInterpreter: Intent.IntentInterpreter = mock()
+        viewModel = DashboardViewModel(mockIntentInterpreter, actionInterpreter, resultInterpreter, testContextProvider)
+
+        runBlocking {
+            verify(mockIntentInterpreter).interpret(eq(Intent.LoadPostData), anyOrNull())
         }
     }
 
     @Test
-    fun `when sending the select post intent, return loaded state`() {
-        viewModel.sendIntent(Intent.SelectPostIntent(repositoryWrapper.mockPost))
+    fun `on init, recieve initial data`() {
         viewModel.state.observeForever {
-            assertEquals(State.DetailsLoaded(repositoryWrapper.mockPost), it)
+            assertEquals(State.PostsLoaded(mockMetadata), it)
         }
     }
 
     @Test
-    fun `when error occurs, show error state`() {
-        repositoryWrapper.mockError()
-        viewModel.sendIntent(Intent.InitialIntent)
+    fun `when sending leave detail intent, get post data`() {
+        viewModel.sendIntent(Intent.LeaveDetailIntent)
         viewModel.state.observeForever {
-            assertEquals(State.Error("Error"), it)
+            assertEquals(State.PostsLoaded(mockMetadata), it)
+        }
+    }
+
+    @Test
+    fun `when sending comment tapped action, receive hide comment state`() {
+        viewModel.sendIntent(Intent.CommentTapped(true))
+        viewModel.state.observeForever {
+            assertEquals(State.HideComments, it)
+        }
+    }
+
+    @Test
+    fun `when post selected, return details loaded`() {
+        viewModel.sendIntent(Intent.SelectPostIntent(mockMetadata[0]))
+        viewModel.state.observeForever {
+            assertEquals(State.DetailsLoaded(mockMetadata[0]), it)
         }
     }
 

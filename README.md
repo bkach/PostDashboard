@@ -1,5 +1,7 @@
 # PostDashboard
 
+<video src="AppVideo.webm" alt="AppVideo" width="300" controls loop />
+
 A simple project used to illustrate clean architecture and testing in Android with Kotlin.
 
 The app shows a list of posts from [JsonPlaceholder](http://jsonplaceholder.typicode.com). Upon tapping on one of the posts, a detail view is shown with further details on the tapped post.
@@ -74,6 +76,7 @@ Unit tests work the same way:
 * [Espresso](https://developer.android.com/training/testing/espresso/)
 * [Navigation Architecture Component](https://developer.android.com/topic/libraries/architecture/navigation/)
 * [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html)
+* [Picasso](https://square.github.io/picasso/)
 
 ## License
 

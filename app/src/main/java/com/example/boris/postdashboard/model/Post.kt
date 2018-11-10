@@ -18,15 +18,8 @@
 
 package com.example.boris.postdashboard.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 
-/**
- * Data class for a post entry
- *
- * Note user name and the number of comments are nullable, as the initial request
- * to the sever does not contain these two items
- */
 @Entity
-data class Post(val userId: Int, @PrimaryKey val id: Int, val title: String, val body: String,
-                var userName: String?, var numComments: Int?)
+data class Post(@PrimaryKey val id: Int, val userId: Int, val title: String, val body: String)
+

@@ -20,7 +20,6 @@ package com.example.boris.postdashboard.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -42,6 +41,10 @@ class DashboardViewModel constructor(
     private val _state: MutableLiveData<State> = MutableLiveData()
     val state: LiveData<State>
         get() = _state
+
+    init {
+        sendIntent(Intent.LoadPostData)
+    }
 
     /**
      * This function pieces together each part of the View Models' architecture. Each [Intent] becomes a [State], and

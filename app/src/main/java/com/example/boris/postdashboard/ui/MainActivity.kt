@@ -20,6 +20,7 @@ package com.example.boris.postdashboard.ui
 
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
@@ -59,5 +60,18 @@ class MainActivity : AppCompatActivity() {
                     is State.Error -> Log.e(javaClass.simpleName, state.message)
                 }
             })
+    }
+
+    override fun onBackPressed() {
+        supportFragmentManager.fragments.forEach {
+            if (it is NavHostFragment) {
+                it.childFragmentManager.fragments.forEach {
+                    if (it is DetailFragment) {
+                        it.onBackPressed()
+                    }
+                }
+            }
+        }
+        super.onBackPressed()
     }
 }

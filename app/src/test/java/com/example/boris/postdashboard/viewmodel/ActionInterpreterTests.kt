@@ -19,7 +19,8 @@
 package com.example.boris.postdashboard.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.boris.postdashboard.MockRepositoryWrapper
+import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
+import com.example.boris.postdashboard.mocks.MockRepositoryWrapper
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -56,7 +57,7 @@ class ActionInterpreterTests {
                 if (timesCalled == 1) {
                     assertEquals(Result.PostsLoading, result)
                 } else {
-                    assertEquals(Result.PostsLoadResult(listOf(repositoryWrapper.mockPost)), result)
+                    assertEquals(Result.PostsLoadResult(mockMetadata), result)
                 }
             }
 
@@ -65,7 +66,7 @@ class ActionInterpreterTests {
     }
 
     @Test
-    fun `When show detail action is passed, detail results should show loading and pass results`() {
+    fun `When show detail action is passed, details load result should be passed as result`() {
         runBlocking {
 
             var timesCalled = 0
@@ -73,13 +74,45 @@ class ActionInterpreterTests {
             val callback: suspend (Result) -> Unit = { result ->
                 timesCalled += 1
                 if (timesCalled == 1) {
-                    assertEquals(Result.DetailsLoading, result)
+                    assertEquals(Result.NavigateToDetails, result)
                 } else {
-                    assertEquals(Result.DetailsLoadResult(repositoryWrapper.mockPost), result)
+                    assertEquals(Result.DetailsLoadResult(mockMetadata[0]), result)
                 }
             }
 
-            actionInterpreter.interpret(Action.ShowDetailViewAction(repositoryWrapper.mockPost), callback)
+            actionInterpreter.interpret(Action.ShowDetailViewAction(mockMetadata[0]), callback)
+        }
+    }
+
+    @Test
+    fun `When show post without loading action is passed, load posts result should be passed as result`() {
+        runBlocking {
+            val callback: suspend (Result) -> Unit = {
+                assertEquals(Result.PostsLoadResult(mockMetadata), it)
+            }
+            actionInterpreter.interpret(Action.ShowPostsWithoutLoading, callback)
+        }
+    }
+
+    @Test
+    fun `When show or hide comments is passed and comments is shown, hide comments`() {
+        runBlocking {
+            val callback: suspend (Result) -> Unit = {
+                assertEquals(Result.HideComments, it)
+            }
+
+            actionInterpreter.interpret(Action.ShowOrHideComment(true), callback)
+        }
+    }
+
+    @Test
+    fun `When show or hide comments is passed and comments is hidden, show comments`() {
+        runBlocking {
+            val callback: suspend (Result) -> Unit = {
+                assertEquals(Result.ShowComments, it)
+            }
+
+            actionInterpreter.interpret(Action.ShowOrHideComment(false), callback)
         }
     }
 }

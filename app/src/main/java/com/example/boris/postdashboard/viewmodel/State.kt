@@ -18,15 +18,17 @@
 
 package com.example.boris.postdashboard.viewmodel
 
-import com.example.boris.postdashboard.model.Post
+import com.example.boris.postdashboard.model.PostWithMetadata
 
 /**
  * State class representing the state of the app
  */
 sealed class State {
     data class Error(val message: String) : State()
-    data class PostsLoaded(val posts: List<Post>) : State()
-    data class DetailsLoaded(val post: Post) : State()
+    data class PostsLoaded(val posts: List<PostWithMetadata>) : State()
+    data class DetailsLoaded(val post: PostWithMetadata) : State()
     object PostsLoading : State()
     object DetailsLoading : State()
+    data class ShowComments(val post: PostWithMetadata) : State()
+    data class HideComments(val post: PostWithMetadata) : State()
 }

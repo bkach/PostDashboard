@@ -42,49 +42,37 @@ class NetworkRepositoryTests {
     @JvmField
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    val service = mock<RetrofitWrapper.JsonPlaceholderService>()
-    val networkRepository = NetworkRepository(service)
+    private val service = mock<RetrofitWrapper.JsonPlaceholderService>()
+    private val networkRepository = NetworkRepository(service)
     val post = mock<Post>()
 
     @Test
-    fun `when get posts called successfully, call success function`() {
-        whenever(service.getPosts()).thenReturn(
-            CompletableDeferred(
-                Response.success(listOf(post))
-            )
-        )
+    fun `when processing network data which is fetched successfully, call success`() {
+        whenever(service.getPosts()).thenReturn(CompletableDeferred(Response.success(listOf(post))))
 
         runBlocking {
-            val result = networkRepository.getPosts( {
-                Result.PostsLoadResult(it)
-            }, {
-                Result.PostsLoadingError("Error")
-            } )
+            val result = networkRepository.processData(
+                service.getPosts(),
+                { Repository.RequestResult.Success },
+                { Repository.RequestResult.Error(it) })
 
-            assertEquals(Result.PostsLoadResult(listOf(post)), result)
+            assertEquals(Repository.RequestResult.Success, result)
         }
     }
 
     @Test
-    fun `when get posts called unsuccessfully, call error function`() {
-        whenever(service.getPosts()).thenReturn(
-            CompletableDeferred(
-                Response.error(404, ResponseBody.create(null, "Error"))
-            )
-        )
+    fun `when processing database data which is fetched unsuccessfully, call error`() {
+        whenever(service.getPosts()).thenReturn(CompletableDeferred(
+            Response.error(404, ResponseBody.create(null, ""))))
 
         runBlocking {
-            val result = networkRepository.getPosts( {
-                Result.PostsLoadResult(it)
-            }, {
-                Result.PostsLoadingError("Error")
-            } )
+            val result = networkRepository.processData(
+                service.getPosts(),
+                { Repository.RequestResult.Success },
+                { Repository.RequestResult.Error(it) })
 
-            assertEquals(Result.PostsLoadingError("Error"), result)
+            assertEquals(Repository.RequestResult.Error("NetworkRepository: Fetch Data Unsuccessful"), result)
         }
     }
-
-
-    // TODO: Get users and get comments work similarly, and tests would be almost identical to the ones above
 
 }

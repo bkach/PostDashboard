@@ -21,15 +21,14 @@ package com.example.boris.postdashboard.repository
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.boris.postdashboard.model.Comment
+import com.example.boris.postdashboard.model.Photo
 import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
 
 /**
- * Database containing post data.
- *
- * It stores a table for each entity in the database
+ * Database containing post, comment, user, and photo data
  */
-@Database(entities = [Comment::class, Post::class, User::class], version = 1, exportSchema = false)
+@Database(entities = [Comment::class, Post::class, User::class, Photo::class], version = 1, exportSchema = false)
 abstract class PostDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
 }

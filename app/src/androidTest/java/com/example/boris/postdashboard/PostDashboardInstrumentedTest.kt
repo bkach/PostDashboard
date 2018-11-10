@@ -29,6 +29,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import com.example.boris.postdashboard.mocks.MockDatabaseRepository
+import com.example.boris.postdashboard.mocks.MockJsonPlaceholderService
+import com.example.boris.postdashboard.mocks.MockModel.Companion.mockComment
+import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
+import com.example.boris.postdashboard.mocks.MockModel.Companion.mockPost
 import com.example.boris.postdashboard.repository.DatabaseRepository
 import com.example.boris.postdashboard.repository.RetrofitWrapper
 import com.example.boris.postdashboard.ui.MainActivity
@@ -66,39 +71,47 @@ class PostDashboardInstrumentedTest: KoinTest, KoinComponent {
     @Test
     fun onInit_showRecyclerviewWithAtLeastOneItem() {
         init()
-
-
         checkIfAtLeastOneItemInRecyclerView()
     }
 
     @Test
-    fun onClickItem_showDetailViewWithCorrectString() {
+    fun onInit_showRecyclerviewWithCorrectTitle() {
         init()
-        clickFirstItemInRecyclerView()
+        onView(withId(R.id.recyclerview_item_textview_title))
+            .check(matches(withText(mockPost.title)))
+    }
+
+    @Test
+    fun onInit_showRecyclerviewWithCorrectAuthor() {
+        init()
+        onView(withId(R.id.recyclerview_item_textview_user))
+            .check(matches(withText("by ${mockMetadata[0].userList?.get(0)?.name}")))
+    }
+
+    @Test
+    fun onInit_showRecyclerviewWithCorrectNumComments() {
+        init()
+        onView(withId(R.id.recyclerview_item_textview_numItems))
+            .check(matches(withText(
+                "${mockMetadata[0].commentList?.size.toString()} "
+            )))
+    }
+
+    @Test
+    fun onTapItem_showDetailViewWithCorrectTitle() {
+        init()
+        tapFirstItemInRecyclerView()
         onView(withId(R.id.detail_title_text_view))
-            .check(matches(withText(mockJsonPlaceholderService.mockPost.title)))
+            .check(matches(withText(mockPost.title)))
     }
 
     @Test
-    fun onClickItem_andLoadCommentsError_showError() {
-        init {
-            mockJsonPlaceholderService.getCommentsSuccess = false
-            mockDatabaseRepository.getCommentsSuccess = false
-        }
-
-        clickFirstItemInRecyclerView()
-        checkIfErrorShown()
-    }
-
-    @Test
-    fun onClickItem_andLoadUserError_showError() {
-        init {
-            mockJsonPlaceholderService.getUsersSuccess = false
-            mockDatabaseRepository.getCommentsSuccess = false
-        }
-
-        clickFirstItemInRecyclerView()
-        checkIfErrorShown()
+    fun onTapItem_andTapComments_showComments() {
+        init()
+        tapFirstItemInRecyclerView()
+        tapComments()
+        onView(withId(R.id.detail_comment_recyclerview_body_text))
+            .check(matches(withText(mockComment.body)))
     }
 
     @Test
@@ -116,11 +129,11 @@ class PostDashboardInstrumentedTest: KoinTest, KoinComponent {
         activityRule.launchActivity(Intent())
     }
 
-    private fun mockRepositories(runAfterRepositiesCreated: () -> Unit = {}) {
+    private fun mockRepositories(runAfterRepositoriesCreated: () -> Unit = {}) {
         mockDatabaseRepository = MockDatabaseRepository(getContext())
         mockJsonPlaceholderService = MockJsonPlaceholderService()
 
-        runAfterRepositiesCreated()
+        runAfterRepositoriesCreated()
 
         loadKoinModules(module {
             single (override = true) { mockDatabaseRepository as DatabaseRepository }
@@ -128,9 +141,13 @@ class PostDashboardInstrumentedTest: KoinTest, KoinComponent {
         })
     }
 
-    private fun clickFirstItemInRecyclerView() =
+    private fun tapFirstItemInRecyclerView() =
         onView(withId(R.id.post_list_recyclerview))
             .perform(RecyclerViewActions.actionOnItemAtPosition<PostListAdapter.ViewHolder>(0, click()))
+
+    private fun tapComments() =
+        onView(withId(R.id.detail_num_comments_text_view))
+            .perform(click())
 
     private fun checkIfErrorShown() =
         onView(withId(R.id.snackbar_text))

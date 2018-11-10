@@ -19,12 +19,9 @@
 package com.example.boris.postdashboard.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 
-/**
- * Data class for a User.
- *
- * The Users' id will be used to associate the user with their post
- */
 @Entity
 data class User(@PrimaryKey val id: Int, val name: String)

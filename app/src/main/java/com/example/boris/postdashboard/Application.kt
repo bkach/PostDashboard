@@ -35,7 +35,8 @@ class Application : Application() {
             single { Intent.IntentInterpreter() }
             single { Action.ActionInterpreter(get()) }
             single { Result.ResultInterpreter() }
-            single { NetworkRepository(RetrofitWrapper.getJsonPlaceholderService())}
+            single { RetrofitWrapper.getJsonPlaceholderService() }
+            single { NetworkRepository(get()) }
             single { DatabaseRepository(PostDatabaseFactory(applicationContext).createDatabase()) }
             single { Repository(get(), get(), get()) }
             single { CoroutineContextProvider() }

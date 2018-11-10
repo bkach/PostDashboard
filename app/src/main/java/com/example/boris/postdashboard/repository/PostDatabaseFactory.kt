@@ -25,7 +25,8 @@ import org.koin.standalone.KoinComponent
 /**
  * Factory for building a database.
  *
- * This class is meant to abstract database creation from the Application class, where it is injected
+ * This class is meant to abstract database creation from the Application class, where it is injected into the rest
+ * of the app
  */
 class PostDatabaseFactory constructor(val context: Context) : KoinComponent {
    fun createDatabase() : PostDatabase {

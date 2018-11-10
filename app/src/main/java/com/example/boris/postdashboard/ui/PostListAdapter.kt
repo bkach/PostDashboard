@@ -21,16 +21,18 @@ package com.example.boris.postdashboard.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.boris.postdashboard.R
-import com.example.boris.postdashboard.model.Post
+import com.example.boris.postdashboard.model.PostWithMetadata
+import com.squareup.picasso.Picasso
 
 class PostListAdapter : RecyclerView.Adapter<PostListAdapter.ViewHolder>() {
 
-    var posts: List<Post> = listOf()
+    var posts: List<PostWithMetadata> = listOf()
 
-    var onClick: ((Post)-> Unit)? = null
+    var onClick: ((PostWithMetadata)-> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(
@@ -42,22 +44,31 @@ class PostListAdapter : RecyclerView.Adapter<PostListAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (posts.isNotEmpty()) {
-            holder.post = posts[position]
-            holder.postTitleTextView.text = holder.post.title
+            holder.data = posts[position]
+            holder.postTitleTextView.text = "${holder.data.post?.title}"
+            holder.postAuthorTextView.text = holder.itemView.context.getString(R.string.authorString,
+                holder.data.userList?.get(0)?.name)
+
+            Picasso.get()
+                .load(holder.data.photoList?.get(0)?.thumbnailUrl)
+                .into(holder.postImageView)
+
             holder.clickListener {
                 onClick?.invoke(posts[position])
             }
         }
     }
 
-    fun updatePosts(posts: List<Post>) {
+    fun updatePosts(posts: List<PostWithMetadata>) {
         this.posts = posts
         notifyDataSetChanged()
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        lateinit var post: Post
-        val postTitleTextView: TextView = itemView.findViewById(R.id.recyclerview_item_textview)
+        lateinit var data: PostWithMetadata
+        val postTitleTextView: TextView = itemView.findViewById(R.id.recyclerview_item_textview_title)
+        val postAuthorTextView: TextView = itemView.findViewById(R.id.recyclerview_item_textview_user)
+        val postImageView: ImageView = itemView.findViewById(R.id.recyclerview_item_imageview)
 
         fun clickListener(callback: () -> Unit) {
             itemView.setOnClickListener { callback() }

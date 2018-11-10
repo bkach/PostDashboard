@@ -18,10 +18,7 @@
 
 package com.example.boris.postdashboard.repository
 
-import com.example.boris.postdashboard.model.Comment
-import com.example.boris.postdashboard.model.Post
-import com.example.boris.postdashboard.model.User
-import com.example.boris.postdashboard.viewmodel.Result
+import com.example.boris.postdashboard.model.*
 import org.koin.standalone.KoinComponent
 
 /**
@@ -29,7 +26,7 @@ import org.koin.standalone.KoinComponent
  */
 open class DatabaseRepository constructor(private val database: PostDatabase): KoinComponent {
 
-    private suspend fun <T,R> processData(
+    suspend fun <T,R> processData(
         data: List<T>,
         success: (List<T>) -> R,
         error: suspend (String) -> R) : R {
@@ -41,19 +38,32 @@ open class DatabaseRepository constructor(private val database: PostDatabase): K
         }
     }
 
-    open suspend fun getPosts(success: (List<Post>) -> Result,
-                              error: suspend (String) -> Result) : Result =
+    open suspend fun getPosts(success: (List<Post>) -> Repository.RequestResult,
+                              error: suspend (String) -> Repository.RequestResult)
+            : Repository.RequestResult =
         processData(database.postDao().loadPosts(), success, error)
 
-    open suspend fun getUsers(success: (List<User>) -> Repository.UsersResult,
-                              error: suspend (String) -> Repository.UsersResult) : Repository.UsersResult =
+    open suspend fun getUsers(success: (List<User>) -> Repository.RequestResult,
+                              error: suspend (String) -> Repository.RequestResult)
+            : Repository.RequestResult =
         processData(database.postDao().loadUsers(), success, error)
 
-    open suspend fun getComments(success: (List<Comment>) -> Repository.CommentsResult,
-                                 error: suspend (String) -> Repository.CommentsResult) : Repository.CommentsResult =
+    open suspend fun getComments(success: (List<Comment>) -> Repository.RequestResult,
+                                 error: suspend (String) -> Repository.RequestResult)
+            : Repository.RequestResult =
         processData(database.postDao().loadComments(), success, error)
 
-    fun savePosts(posts: List<Post>) {
+    open suspend fun getPhotos(success: (List<Photo>) -> Repository.RequestResult,
+                               error: suspend (String) -> Repository.RequestResult)
+            : Repository.RequestResult =
+        processData(database.postDao().loadPhotos(), success, error)
+
+    open suspend fun getPostsWithMetadata(success: (List<PostWithMetadata>) -> Repository.RequestResult,
+                                          error: suspend (String) -> Repository.RequestResult)
+            : Repository.RequestResult =
+        processData(database.postDao().getPostWithCommentsAndUser(), success, error)
+
+    open fun savePosts(posts: List<Post>) {
         database.postDao().savePosts(posts)
     }
 
@@ -65,4 +75,7 @@ open class DatabaseRepository constructor(private val database: PostDatabase): K
         database.postDao().saveComments(comments)
     }
 
+    fun savePhotos(photos: List<Photo>) {
+        database.postDao().savePhotos(photos)
+    }
 }

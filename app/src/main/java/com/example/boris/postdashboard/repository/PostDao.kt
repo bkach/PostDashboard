@@ -22,13 +22,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import com.example.boris.postdashboard.model.Comment
-import com.example.boris.postdashboard.model.Post
-import com.example.boris.postdashboard.model.User
+import com.example.boris.postdashboard.model.*
 
-/**
- * Data Access Object used with the Room library to access the database
- */
 @Dao
 interface PostDao {
     @Insert(onConflict = REPLACE)
@@ -40,6 +35,9 @@ interface PostDao {
     @Insert(onConflict = REPLACE)
     fun saveComments(posts: List<Comment>)
 
+    @Insert(onConflict = REPLACE)
+    fun savePhotos(photos: List<Photo>)
+
     @Query("SELECT * FROM post")
     fun loadPosts(): List<Post>
 
@@ -48,5 +46,11 @@ interface PostDao {
 
     @Query("SELECT * FROM comment")
     fun loadComments(): List<Comment>
+
+    @Query("SELECT * from post")
+    fun getPostWithCommentsAndUser(): List<PostWithMetadata>
+
+    @Query("SELECT * from photo")
+    fun loadPhotos(): List<Photo>
 
 }

@@ -18,18 +18,20 @@
 
 package com.example.boris.postdashboard.viewmodel
 
-import com.example.boris.postdashboard.model.Post
+import com.example.boris.postdashboard.model.PostWithMetadata
 
 /**
  * The Result of an [Action]s operation
  */
 sealed class Result {
-    data class PostsLoadResult(val posts: List<Post>): Result()
-    data class DetailsLoadResult(val post: Post): Result()
+    data class PostsLoadResult(val posts: List<PostWithMetadata>): Result()
+    data class DetailsLoadResult(val post: PostWithMetadata): Result()
     data class PostsLoadingError(val message: String) : Result()
     data class DetailsLoadingError(val message: String) : Result()
     object PostsLoading : Result()
-    object DetailsLoading : Result()
+    object NavigateToDetails : Result()
+    data class HideComments(val post: PostWithMetadata) : Result()
+    data class ShowComments(val post: PostWithMetadata) : Result()
 
     /**
      * Maps [Result]s to [State]s
@@ -42,10 +44,12 @@ sealed class Result {
                 when(input) {
                     is PostsLoadResult -> State.PostsLoaded(input.posts)
                     is PostsLoading -> State.PostsLoading
-                    is DetailsLoading -> State.DetailsLoading
+                    is NavigateToDetails -> State.DetailsLoading
                     is PostsLoadingError -> State.Error(input.message)
                     is DetailsLoadResult -> State.DetailsLoaded(input.post)
                     is DetailsLoadingError -> State.Error(input.message)
+                    is HideComments -> State.HideComments(input.post)
+                    is ShowComments -> State.ShowComments(input.post)
                 }
             )
         }

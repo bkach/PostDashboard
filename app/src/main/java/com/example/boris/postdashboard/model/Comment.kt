@@ -21,10 +21,5 @@ package com.example.boris.postdashboard.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-/**
- * Data class for a comment.
- *
- * PostId is used to relate a comment to its respective post
- */
 @Entity
-data class Comment(@PrimaryKey val id: Int, val postId: Int)
+data class Comment(@PrimaryKey val id: Int, val postId: Int, val email: String, val body: String)

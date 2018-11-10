@@ -18,14 +18,16 @@
 
 package com.example.boris.postdashboard.viewmodel
 
-import com.example.boris.postdashboard.model.Post
+import com.example.boris.postdashboard.model.PostWithMetadata
 
 /**
  * An class which describes an Intent from the UI
  */
 sealed class Intent {
-    object InitialIntent : Intent()
-    data class SelectPostIntent(val selectedPost: Post) : Intent()
+    object LoadPostData : Intent()
+    object LeaveDetailIntent : Intent()
+    data class CommentTapped(val commentVisible: Boolean) : Intent()
+    data class SelectPostIntent(val selectedPost: PostWithMetadata) : Intent()
 
     /**
      * Maps [Intent]s to [Action]s
@@ -34,8 +36,10 @@ sealed class Intent {
         override suspend fun interpret(input: Intent, callback: suspend (Action) -> Unit) {
             callback(
                 when (input) {
-                    is InitialIntent -> Action.LoadPostsAction
+                    is LoadPostData -> Action.LoadPostsAction
                     is SelectPostIntent -> Action.ShowDetailViewAction(input.selectedPost)
+                    LeaveDetailIntent -> Action.ShowPostsWithoutLoading
+                    is CommentTapped -> Action.ShowOrHideComment(input.commentVisible)
                 }
             )
         }

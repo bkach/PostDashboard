@@ -1,0 +1,27 @@
+<!--
+  ~ PostDashboard
+  ~ Copyright (C) 2018 Boris Kachscovsky
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="512dp"
+    android:viewportWidth="320"
+    android:viewportHeight="512">
+  <path
+      android:pathData="M41,288h238c21.4,0 32.1,25.9 17,41L177,448c-9.4,9.4 -24.6,9.4 -33.9,0L24,329c-15.1,-15.1 -4.4,-41 17,-41z"
+      android:fillColor="@android:color/black"/>
+</vector>

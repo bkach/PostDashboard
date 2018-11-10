@@ -18,33 +18,43 @@
 
 package com.example.boris.postdashboard.viewmodel
 
-import com.example.boris.postdashboard.model.Post
+import com.example.boris.postdashboard.model.PostWithMetadata
 import com.example.boris.postdashboard.repository.Repository
-import org.koin.standalone.KoinComponent
 
 /**
  * Action which signifies the action the app should take upon receiving an Intent
  */
 sealed class Action {
     object LoadPostsAction : Action()
-    data class ShowDetailViewAction(val selectedPost: Post): Action()
+    data class ShowDetailViewAction(val selectedPost: PostWithMetadata): Action()
+    object ShowPostsWithoutLoading : Action()
+    data class ShowOrHideComment(val commentVisible: Boolean) : Action()
 
     /**
      * Interprets [Action]s and returns a result of the action in the form of a [Result]. These actions are largely
      * performed Asynchronously using coroutines.
      */
-    class ActionInterpreter(val repository: Repository) : Interpreter<Action, Result>(), KoinComponent {
+    class ActionInterpreter(val repository: Repository) : Interpreter<Action, Result>() {
+        var lastSelectedPost: PostWithMetadata? = null
+
         override suspend fun interpret(input: Action, callback: suspend (Result) -> Unit) {
             callback(
                 when(input) {
                     is LoadPostsAction -> {
                         callback(Result.PostsLoading)
-                        repository.getPosts().await()
+                        repository.loadPosts()
                     }
                     is ShowDetailViewAction -> {
-                        callback(Result.DetailsLoading)
-                        repository.getDetails(input.selectedPost).await()
+                        callback(Result.NavigateToDetails)
+                        lastSelectedPost = input.selectedPost
+                        Result.DetailsLoadResult(input.selectedPost)
                     }
+                    is ShowPostsWithoutLoading -> repository.loadPosts()
+                    is ShowOrHideComment ->
+                        if (input.commentVisible)
+                            Result.HideComments(lastSelectedPost!!)
+                        else
+                            Result.ShowComments(lastSelectedPost!!)
                 }
             )
         }

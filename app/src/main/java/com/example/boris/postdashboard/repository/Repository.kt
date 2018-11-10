@@ -18,14 +18,10 @@
 
 package com.example.boris.postdashboard.repository
 
-import com.example.boris.postdashboard.model.Comment
-import com.example.boris.postdashboard.model.Post
-import com.example.boris.postdashboard.model.User
+import com.example.boris.postdashboard.model.PostWithMetadata
 import com.example.boris.postdashboard.viewmodel.CoroutineContextProvider
 import com.example.boris.postdashboard.viewmodel.Result
-import com.example.boris.postdashboard.viewmodel.Result.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import org.koin.standalone.KoinComponent
 import kotlin.coroutines.CoroutineContext
@@ -47,103 +43,103 @@ open class Repository constructor(
     override val coroutineContext: CoroutineContext
         get() = contextPool.IO
 
-    /**
-     * All three get functions work similarly:
-     *      - Attempt to get data from the database
-     *      - If there is an error, attempt the network
-     *      - If the network has an error, return an error
-     *      - If the network has a hit, save the data and load from the database
-     *      - If loading from the database again does not work, return an error
-     */
-
     // TODO: There's a fair bit of code duplication here - could this be done in a better way?
 
-    open fun getPosts(): Deferred<Result> = async {
-        databaseRepository.getPosts({ PostsLoadResult(it) }) {
+    open fun updatePosts() = async {
+        databaseRepository.getPosts({ RequestResult.Success }) {
             networkRepository.getPosts({
                 databaseRepository.savePosts(it)
-                databaseRepository.getPosts( { PostsLoadResult(it) }) {
-                    PostsLoadingError(it)
-                }
+                RequestResult.Success
             }) {
-                PostsLoadingError(it)
+                RequestResult.Error(it)
             }
         }
     }
 
-    open fun getUsers(): Deferred<UsersResult> = async {
-        databaseRepository.getUsers( { UsersResult.UsersLoadedResult(it) } ) {
+    open fun updateUsers()= async {
+        databaseRepository.getUsers( { RequestResult.Success } ) {
             networkRepository.getUsers({
                 databaseRepository.saveUsers(it)
-                databaseRepository.getUsers( { UsersResult.UsersLoadedResult(it) } ) {
-                    UsersResult.UserLoadingError(it)
-                }
+                RequestResult.Success
             }) {
-                UsersResult.UserLoadingError(it)
+                RequestResult.Error(it)
             }
         }
     }
 
-    open fun getComments(): Deferred<CommentsResult> = async {
-        databaseRepository.getComments( { CommentsResult.CommentsLoadedResult(it) } ) {
+    open fun updateComments()= async {
+        databaseRepository.getComments( { RequestResult.Success } ) {
             networkRepository.getComments({
                 databaseRepository.saveComments(it)
-                databaseRepository.getComments( { CommentsResult.CommentsLoadedResult(it) } ) {
-                    CommentsResult.CommentsLoadingError(it)
-                }
+                RequestResult.Success
             }) {
-                CommentsResult.CommentsLoadingError(it)
+                RequestResult.Error(it)
+            }
+        }
+    }
+
+    open fun updatePhotos()= async {
+        databaseRepository.getPhotos( { RequestResult.Success } ) {
+            networkRepository.getPhotos({
+                databaseRepository.savePhotos(it)
+                RequestResult.Success
+            }) {
+                RequestResult.Error(it)
             }
         }
     }
 
     /**
-     * Gets the details of a [Post]
-     *
-     * If getting users or comments results in an error, this function will return a [DetailsLoadingError]
-     *
-     * @return A Deferred [Result] containing a post with a user and a number of comments or a [DetailsLoadingError]
+     * Updates database and retrieves a [PostWithMetadata] object, later passed through to the result
      */
-    fun getDetails(selectedPost: Post)  = async {
-        val userResult: UsersResult = getUsers().await()
-        val commentsResult: CommentsResult = getComments().await()
+    suspend fun loadPosts(): Result {
+        val dataUpdateError = updateData()
 
-        when (userResult) {
-            is UsersResult.UsersLoadedResult -> when (commentsResult) {
-                is CommentsResult.CommentsLoadedResult ->
-                    Result.DetailsLoadResult(
-                        createUpdatedPost(selectedPost, userResult.users, commentsResult.comments)
-                    )
-                is CommentsResult.CommentsLoadingError -> DetailsLoadingError(commentsResult.message)
-            }
-            is UsersResult.UserLoadingError -> DetailsLoadingError(userResult.message)
+        if (dataUpdateError != null) {
+            return dataUpdateError
         }
+
+        var postsWithMetadata: List<PostWithMetadata>? = null
+        val result = databaseRepository.getPostsWithMetadata(
+            { postsWithMetadata = it
+                RequestResult.Success } )
+            { RequestResult.Error(it) }
+
+        if (result is RequestResult.Error) {
+            return Result.PostsLoadingError(result.message)
+        }
+
+        return Result.PostsLoadResult(postsWithMetadata!!)
     }
 
-    /**
-     * Updates the selected [Post] with its user name and number of comments
-     */
-    fun createUpdatedPost(selectedPost: Post, users: List<User>, comments: List<Comment>) : Post {
-        val user = users.find { it.id == selectedPost.userId }
-        val numComments = comments.filter { it.postId == selectedPost.id }.size
+    suspend fun updateData() : Result? {
+        val postsResult = updatePosts().await()
+        val usersResult = updateUsers().await()
+        val commentsResult = updateComments().await()
+        val photosResult = updatePhotos().await()
 
-        selectedPost.userName = user?.name
-        selectedPost.numComments = numComments
 
-        return selectedPost
+        if (postsResult is RequestResult.Error) {
+            return Result.PostsLoadingError(postsResult.message)
+        }
+
+        if (usersResult is RequestResult.Error) {
+            return Result.PostsLoadingError(usersResult.message)
+        }
+
+        if (commentsResult is RequestResult.Error) {
+            return Result.PostsLoadingError(commentsResult.message)
+        }
+
+        if (photosResult is RequestResult.Error) {
+            return Result.PostsLoadingError(photosResult.message)
+        }
+
+        return null
     }
 
-    /**
-     * Result sealed classes, used to abstract requests for data
-     */
-
-    sealed class UsersResult {
-        data class UsersLoadedResult(val users: List<User>): UsersResult()
-        data class UserLoadingError(val message: String): UsersResult()
-    }
-
-    sealed class CommentsResult {
-        data class CommentsLoadedResult(val comments: List<Comment>): CommentsResult()
-        data class CommentsLoadingError(val message: String): CommentsResult()
+    sealed class RequestResult {
+        object Success : RequestResult()
+        data class Error(val message: String): RequestResult()
     }
 }

@@ -19,18 +19,19 @@
 package com.example.boris.postdashboard.repository
 
 import com.example.boris.postdashboard.model.Comment
+import com.example.boris.postdashboard.model.Photo
 import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
-import com.example.boris.postdashboard.viewmodel.Result
 import kotlinx.coroutines.Deferred
+import org.koin.standalone.KoinComponent
 import retrofit2.Response
 
 /**
- * Repository for communicating with the Network
+ * Repository for communicating with the Network via the JsonPlaceHolder API
  */
-open class NetworkRepository constructor(private val service: RetrofitWrapper.JsonPlaceholderService) {
+open class NetworkRepository constructor(private val service: RetrofitWrapper.JsonPlaceholderService) : KoinComponent {
 
-    private suspend fun <T,R> processData(
+    suspend fun <T,R> processData(
         deferredData: Deferred<Response<List<T>>>,
         success: suspend (List<T>) -> R,
         error: (String) -> R) : R {
@@ -52,14 +53,19 @@ open class NetworkRepository constructor(private val service: RetrofitWrapper.Js
         }
     }
 
-    open suspend fun getPosts(success: suspend (List<Post>) -> Result, error: (String) -> Result) : Result =
+    open suspend fun getPosts(success: suspend (List<Post>) -> Repository.RequestResult,
+                              error: (String) -> Repository.RequestResult) : Repository.RequestResult =
         processData(service.getPosts(), success, error)
 
-    open suspend fun getUsers(success: suspend (List<User>) -> Repository.UsersResult,
-                         error: (String) -> Repository.UsersResult) : Repository.UsersResult =
+    open suspend fun getUsers(success: suspend (List<User>) -> Repository.RequestResult,
+                         error: (String) -> Repository.RequestResult) : Repository.RequestResult =
         processData(service.getUsers(), success, error)
 
-    open suspend fun getComments(success: suspend (List<Comment>) -> Repository.CommentsResult,
-                            error: (String) -> Repository.CommentsResult) : Repository.CommentsResult =
+    open suspend fun getComments(success: suspend (List<Comment>) -> Repository.RequestResult,
+                            error: (String) -> Repository.RequestResult) : Repository.RequestResult =
         processData(service.getComments(), success, error)
+
+    open suspend fun getPhotos(success: suspend (List<Photo>) -> Repository.RequestResult,
+                               error: (String) -> Repository.RequestResult) : Repository.RequestResult =
+        processData(service.getPhotos(), success, error)
 }

@@ -25,9 +25,12 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module.module
+import org.koin.standalone.StandAloneContext.loadKoinModules
 import org.mockito.junit.MockitoJUnit
 
 class DatabaseRepositoryTests {
@@ -51,35 +54,31 @@ class DatabaseRepositoryTests {
     }
 
     @Test
-    fun `when get posts called successfully, call success function`() {
+    fun `when processing database data which is fetched successfully, call success`() {
         whenever(postDao.loadPosts()).thenReturn(listOf(post))
 
         runBlocking {
-            val result = databaseRepository.getPosts( {
-                Result.PostsLoadResult(it)
-            }, {
-                Result.PostsLoadingError("Error")
-            } )
+            val result = databaseRepository.processData(
+                postDatabase.postDao().loadPosts(),
+                { Repository.RequestResult.Success },
+                { Repository.RequestResult.Error(it) })
 
-            assertEquals(Result.PostsLoadResult(listOf(post)), result)
+            assertEquals(Repository.RequestResult.Success, result)
         }
     }
 
     @Test
-    fun `when get posts called unsuccessfully, call error function`() {
+    fun `when processing database data which is fetched unsuccessfully, call error`() {
         whenever(postDao.loadPosts()).thenReturn(listOf())
-        runBlocking {
-            val result = databaseRepository.getPosts( {
-                Result.PostsLoadResult(it)
-            }, {
-                Result.PostsLoadingError("Error")
-            } )
 
-            assertEquals(Result.PostsLoadingError("Error"), result)
+        runBlocking {
+            val result = databaseRepository.processData(
+                postDatabase.postDao().loadPosts(),
+                { Repository.RequestResult.Success },
+                { Repository.RequestResult.Error(it) })
+
+            assertEquals(Repository.RequestResult.Error("DatabaseRepository: Load from Database Error"), result)
         }
     }
-
-
-    // TODO: Get users and get comments function much in the same way, and unit test would be similar to the one above
 
 }

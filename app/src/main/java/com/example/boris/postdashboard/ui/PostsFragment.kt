@@ -28,7 +28,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.boris.postdashboard.R
-import com.example.boris.postdashboard.model.Post
+import com.example.boris.postdashboard.model.PostWithMetadata
 import com.example.boris.postdashboard.viewmodel.DashboardViewModel
 import com.example.boris.postdashboard.viewmodel.Intent
 import com.example.boris.postdashboard.viewmodel.State
@@ -54,21 +54,16 @@ class PostsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        disableManualRefresh()
+        setupManualRefresh()
         setupRecyclerView()
         subscribeToOnClick()
         observeState()
-
-        // Initial intent should be sent every time the fragment is recreated
-        dashboardViewModel.sendIntent(Intent.InitialIntent)
     }
 
-    /**
-     * Disables refresh gesture
-     * // TODO: Refresh logic?
-     */
-    private fun disableManualRefresh() {
-        post_list_swipe_refresh_layout.isEnabled = false
+    private fun setupManualRefresh() {
+        post_list_swipe_refresh_layout.setOnRefreshListener {
+            dashboardViewModel.sendIntent(Intent.LoadPostData)
+        }
     }
 
     private fun setupRecyclerView() {
@@ -110,7 +105,7 @@ class PostsFragment : Fragment() {
         })
     }
 
-    private fun updatePosts(posts: List<Post>) {
+    private fun updatePosts(posts: List<PostWithMetadata>) {
         postListAdapter?.updatePosts(posts)
     }
 

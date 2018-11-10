@@ -19,6 +19,7 @@
 package com.example.boris.postdashboard.repository
 
 import com.example.boris.postdashboard.model.Comment
+import com.example.boris.postdashboard.model.Photo
 import com.example.boris.postdashboard.model.Post
 import com.example.boris.postdashboard.model.User
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
@@ -44,7 +45,7 @@ class RetrofitWrapper {
 
         private fun buildLoggingClient(): OkHttpClient {
             val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BASIC
             return OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
         }
     }
@@ -58,6 +59,9 @@ class RetrofitWrapper {
 
         @GET("/comments")
         fun getComments(): Deferred<Response<List<Comment>>>
+
+        @GET("/photos")
+        fun getPhotos(): Deferred<Response<List<Photo>>>
     }
 }
 
