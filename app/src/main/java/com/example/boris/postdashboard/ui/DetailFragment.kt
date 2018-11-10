@@ -51,12 +51,15 @@ class DetailFragment : Fragment() {
     private val initialConstraint = ConstraintSet()
     private val commentsShownConstraint= ConstraintSet()
     private val commentsHiddenConstraint = ConstraintSet()
+    var applyInitialConstraint = {
+        commentsHiddenConstraint.applyTo(detail_constraintlayout)
+    }
 
     private var snackbar: Snackbar? = null
-
     private val commentsAdapter = CommentsAdapter()
-
     private var commentsVisible = false
+
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_detail_initial, container, false)
@@ -125,10 +128,6 @@ class DetailFragment : Fragment() {
         }
     }
 
-    var applyInitialConstraint = {
-        commentsHiddenConstraint.applyTo(detail_constraintlayout)
-    }
-
     private fun animateIn() {
         TransitionManager.beginDelayedTransition(detail_constraintlayout)
         applyInitialConstraint()
@@ -191,7 +190,6 @@ class DetailFragment : Fragment() {
     }
 
     fun onBackPressed() {
-        System.out.println("bdebug back pressed")
         dashboardViewModel.sendIntent(Intent.LeaveDetailIntent)
     }
 
