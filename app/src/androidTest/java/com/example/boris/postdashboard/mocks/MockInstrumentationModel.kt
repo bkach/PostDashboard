@@ -20,7 +20,7 @@ package com.example.boris.postdashboard.mocks
 
 import com.example.boris.postdashboard.model.*
 
-class MockModel {
+class MockInstrumentationModel {
 
     companion object {
         val mockPost = Post(1, 1, "Title", "Body")

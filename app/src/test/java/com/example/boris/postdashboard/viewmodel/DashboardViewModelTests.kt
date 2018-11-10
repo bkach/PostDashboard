@@ -19,9 +19,9 @@
 package com.example.boris.postdashboard.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.boris.postdashboard.mocks.MockRepositoryWrapper
 import com.example.boris.postdashboard.TestContextProvider
 import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
+import com.example.boris.postdashboard.mocks.MockRepositoryWrapper
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -83,9 +83,10 @@ class DashboardViewModelTests {
 
     @Test
     fun `when sending comment tapped action, receive hide comment state`() {
+        viewModel.sendIntent(Intent.SelectPostIntent(mockMetadata[0]))
         viewModel.sendIntent(Intent.CommentTapped(true))
         viewModel.state.observeForever {
-            assertEquals(State.HideComments, it)
+            assertEquals(State.HideComments(mockMetadata[0]), it)
         }
     }
 

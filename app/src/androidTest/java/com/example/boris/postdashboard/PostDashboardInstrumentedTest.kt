@@ -29,11 +29,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import com.example.boris.postdashboard.mocks.MockDatabaseRepository
+import com.example.boris.postdashboard.mocks.MockDatabaseInstrumentationRepository
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockComment
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockMetadata
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockPost
 import com.example.boris.postdashboard.mocks.MockJsonPlaceholderService
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockComment
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockPost
 import com.example.boris.postdashboard.repository.DatabaseRepository
 import com.example.boris.postdashboard.repository.RetrofitWrapper
 import com.example.boris.postdashboard.ui.MainActivity
@@ -60,7 +60,7 @@ class PostDashboardInstrumentedTest: KoinTest, KoinComponent {
     var activityRule = ActivityTestRule<MainActivity>(
         MainActivity::class.java, false, false)
 
-    private lateinit var mockDatabaseRepository: MockDatabaseRepository
+    private lateinit var mockDatabaseRepositoryRepository: MockDatabaseInstrumentationRepository
     private lateinit var mockJsonPlaceholderService: MockJsonPlaceholderService
 
     @After
@@ -89,15 +89,6 @@ class PostDashboardInstrumentedTest: KoinTest, KoinComponent {
     }
 
     @Test
-    fun onInit_showRecyclerviewWithCorrectNumComments() {
-        init()
-        onView(withId(R.id.recyclerview_item_textview_numItems))
-            .check(matches(withText(
-                "${mockMetadata[0].commentList?.size.toString()} "
-            )))
-    }
-
-    @Test
     fun onTapItem_showDetailViewWithCorrectTitle() {
         init()
         tapFirstItemInRecyclerView()
@@ -118,7 +109,7 @@ class PostDashboardInstrumentedTest: KoinTest, KoinComponent {
     fun onInit_andLoadPostsError_showError() {
         init {
             mockJsonPlaceholderService.getPostsSuccess = false
-            mockDatabaseRepository.getPostsSuccess = false
+            mockDatabaseRepositoryRepository.getPostsSuccess = false
         }
 
         checkIfErrorShown()
@@ -130,13 +121,13 @@ class PostDashboardInstrumentedTest: KoinTest, KoinComponent {
     }
 
     private fun mockRepositories(runAfterRepositoriesCreated: () -> Unit = {}) {
-        mockDatabaseRepository = MockDatabaseRepository(getContext())
+        mockDatabaseRepositoryRepository = MockDatabaseInstrumentationRepository(getContext())
         mockJsonPlaceholderService = MockJsonPlaceholderService()
 
         runAfterRepositoriesCreated()
 
         loadKoinModules(module {
-            single (override = true) { mockDatabaseRepository as DatabaseRepository }
+            single (override = true) { mockDatabaseRepositoryRepository as DatabaseRepository }
             single (override = true) { mockJsonPlaceholderService as RetrofitWrapper.JsonPlaceholderService }
         })
     }

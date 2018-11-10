@@ -98,9 +98,10 @@ class ActionInterpreterTests {
     fun `When show or hide comments is passed and comments is shown, hide comments`() {
         runBlocking {
             val callback: suspend (Result) -> Unit = {
-                assertEquals(Result.HideComments, it)
+                assertEquals(Result.HideComments(mockMetadata[0]), it)
             }
 
+            actionInterpreter.interpret(Action.ShowDetailViewAction(mockMetadata[0])) {}
             actionInterpreter.interpret(Action.ShowOrHideComment(true), callback)
         }
     }
@@ -109,9 +110,10 @@ class ActionInterpreterTests {
     fun `When show or hide comments is passed and comments is hidden, show comments`() {
         runBlocking {
             val callback: suspend (Result) -> Unit = {
-                assertEquals(Result.ShowComments, it)
+                assertEquals(Result.ShowComments(mockMetadata[0]), it)
             }
 
+            actionInterpreter.interpret(Action.ShowDetailViewAction(mockMetadata[0])) {}
             actionInterpreter.interpret(Action.ShowOrHideComment(false), callback)
         }
     }

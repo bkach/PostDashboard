@@ -91,4 +91,8 @@
 			app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
 			android:layout_marginEnd="8dp"/>
 
+	<View android:layout_width="wrap_content" android:layout_height="16dp"
+		  android:id="@+id/detail_hitbox"
+	      app:layout_constraintTop_toTopOf="@id/detail_num_comments_text_view" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

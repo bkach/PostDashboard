@@ -35,7 +35,7 @@ sealed class Action {
      * performed Asynchronously using coroutines.
      */
     class ActionInterpreter(val repository: Repository) : Interpreter<Action, Result>() {
-        var lastSelectedPost: PostWithMetadata? = null
+        private var lastSelectedPost: PostWithMetadata? = null
 
         override suspend fun interpret(input: Action, callback: suspend (Result) -> Unit) {
             callback(

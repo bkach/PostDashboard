@@ -20,21 +20,17 @@ package com.example.boris.postdashboard.mocks
 
 import android.content.Context
 import androidx.room.Room
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockComment
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockPhoto
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockPost
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockUser
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockComment
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockMetadata
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockPhoto
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockPost
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockUser
 import com.example.boris.postdashboard.model.*
 import com.example.boris.postdashboard.repository.DatabaseRepository
 import com.example.boris.postdashboard.repository.PostDatabase
 import com.example.boris.postdashboard.repository.Repository
 
-class MockDatabaseRepository(context: Context) : DatabaseRepository(
-    Companion.getMockDatabase(
-        context
-    )
-) {
+class MockDatabaseInstrumentationRepository(context: Context) : DatabaseRepository(getMockDatabase(context)) {
 
     var getPostsSuccess = true
     var getCommentsSuccess = true

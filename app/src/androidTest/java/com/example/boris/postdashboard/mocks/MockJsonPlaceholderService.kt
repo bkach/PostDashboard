@@ -18,10 +18,10 @@
 
 package com.example.boris.postdashboard.mocks
 
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockComment
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockPhoto
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockPost
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockUser
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockComment
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockPhoto
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockPost
+import com.example.boris.postdashboard.mocks.MockInstrumentationModel.Companion.mockUser
 import com.example.boris.postdashboard.model.Comment
 import com.example.boris.postdashboard.model.Photo
 import com.example.boris.postdashboard.model.Post

@@ -134,12 +134,9 @@ class DetailFragment : Fragment() {
     }
 
     private fun setupCommentClickListener() {
-        val clickListener: View.OnClickListener = View.OnClickListener {
+        detail_hitbox.setOnClickListener {
             dashboardViewModel.sendIntent(Intent.CommentTapped(commentsVisible))
         }
-
-        detail_num_comments_text_view.setOnClickListener(clickListener)
-        detail_comment_arrow.setOnClickListener(clickListener)
     }
 
     private fun setFields(data: PostWithMetadata) {
