@@ -1,6 +1,6 @@
 # PostDashboard
 
-<video src="AppVideo.webm" alt="AppVideo" width="300" controls loop />
+<img src="AppVideo.gif" alt="AppVideo" width="300" />
 
 A simple project used to illustrate clean architecture and testing in Android with Kotlin.
 
