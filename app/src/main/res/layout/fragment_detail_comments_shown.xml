@@ -71,7 +71,7 @@
 			android:src="@drawable/ic_arrow"
 			app:layout_constraintStart_toEndOf="@+id/detail_num_comments_text_view"
 			android:layout_marginStart="8dp" app:layout_constraintTop_toTopOf="@+id/detail_num_comments_text_view"
-			app:layout_constraintBottom_toBottomOf="@+id/detail_num_comments_text_view"/>
+			app:layout_constraintBottom_toBottomOf="@+id/detail_num_comments_text_view" />
 	<ImageView
 			android:id="@+id/detail_imageview"
 			android:layout_width="0dp"

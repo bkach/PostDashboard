@@ -18,7 +18,6 @@
 
 package com.example.boris.postdashboard.viewmodel
 
-import com.example.boris.postdashboard.model.PostWithMetadata
 import com.example.boris.postdashboard.repository.Repository
 
 /**
@@ -26,7 +25,7 @@ import com.example.boris.postdashboard.repository.Repository
  */
 sealed class Action {
     object LoadPostsAction : Action()
-    data class ShowDetailViewAction(val selectedPost: PostWithMetadata): Action()
+    data class ShowDetailViewAction(val selectedPostIndex: Int): Action()
     object ShowPostsWithoutLoading : Action()
     data class ShowOrHideComment(val commentVisible: Boolean) : Action()
 
@@ -35,28 +34,42 @@ sealed class Action {
      * performed Asynchronously using coroutines.
      */
     class ActionInterpreter(val repository: Repository) : Interpreter<Action, Result>() {
-        private var lastSelectedPost: PostWithMetadata? = null
 
         override suspend fun interpret(input: Action, callback: suspend (Result) -> Unit) {
             callback(
                 when(input) {
                     is LoadPostsAction -> {
                         callback(Result.PostsLoading)
-                        repository.loadPosts()
+                        postRequestResultToResult(repository.loadPosts())
                     }
                     is ShowDetailViewAction -> {
                         callback(Result.NavigateToDetails)
-                        lastSelectedPost = input.selectedPost
-                        Result.DetailsLoadResult(input.selectedPost)
+                        repository.loadPost(input.selectedPostIndex)
                     }
-                    is ShowPostsWithoutLoading -> repository.loadPosts()
-                    is ShowOrHideComment ->
-                        if (input.commentVisible)
-                            Result.HideComments(lastSelectedPost!!)
-                        else
-                            Result.ShowComments(lastSelectedPost!!)
+                    is ShowPostsWithoutLoading ->
+                        postRequestResultToResult(repository.loadPosts())
+                    is ShowOrHideComment -> {
+
+                        // We load the last loaded post from the database, as the activity might have been destroyed
+                        val lastLoadedPost = repository.lastLoadedPost()
+
+                        when {
+                            lastLoadedPost == null -> Result.PostsLoadingError("Last Loading Post is null")
+                            input.commentVisible -> Result.HideComments(lastLoadedPost)
+                            else -> Result.ShowComments(lastLoadedPost)
+                        }
+                    }
                 }
             )
+        }
+
+        private suspend fun postRequestResultToResult(result: Repository.PostsRequestResult) : Result{
+            return when (result)  {
+                is Repository.PostsRequestResult.Success ->
+                    Result.PostsLoadResult(result.posts, repository.lastLoadedPost())
+                is Repository.PostsRequestResult.Error ->
+                    Result.PostsLoadingError(result.message)
+            }
         }
 
     }

@@ -41,7 +41,7 @@ open class Repository constructor(
 ) : CoroutineScope, KoinComponent {
 
     override val coroutineContext: CoroutineContext
-        get() = contextPool.IO
+        get() = contextPool.io
 
     // TODO: There's a fair bit of code duplication here - could this be done in a better way?
 
@@ -92,7 +92,7 @@ open class Repository constructor(
     /**
      * Updates database and retrieves a [PostWithMetadata] object, later passed through to the result
      */
-    suspend fun loadPosts(): Result {
+    suspend fun loadPosts(): PostsRequestResult {
         val dataUpdateError = updateData()
 
         if (dataUpdateError != null) {
@@ -106,13 +106,13 @@ open class Repository constructor(
             { RequestResult.Error(it) }
 
         if (result is RequestResult.Error) {
-            return Result.PostsLoadingError(result.message)
+            return PostsRequestResult.Error(result.message)
         }
 
-        return Result.PostsLoadResult(postsWithMetadata!!)
+        return PostsRequestResult.Success(postsWithMetadata!!)
     }
 
-    suspend fun updateData() : Result? {
+    suspend fun updateData() : PostsRequestResult? {
         val postsResult = updatePosts().await()
         val usersResult = updateUsers().await()
         val commentsResult = updateComments().await()
@@ -120,26 +120,52 @@ open class Repository constructor(
 
 
         if (postsResult is RequestResult.Error) {
-            return Result.PostsLoadingError(postsResult.message)
+            return PostsRequestResult.Error(postsResult.message)
         }
 
         if (usersResult is RequestResult.Error) {
-            return Result.PostsLoadingError(usersResult.message)
+            return PostsRequestResult.Error(usersResult.message)
         }
 
         if (commentsResult is RequestResult.Error) {
-            return Result.PostsLoadingError(commentsResult.message)
+            return PostsRequestResult.Error(commentsResult.message)
         }
 
         if (photosResult is RequestResult.Error) {
-            return Result.PostsLoadingError(photosResult.message)
+            return PostsRequestResult.Error(photosResult.message)
         }
 
         return null
     }
 
+    suspend fun loadPost(selectedPostIndex: Int): Result {
+        val loadPostsResult = loadPosts()
+        return when (loadPostsResult) {
+            is PostsRequestResult.Success -> {
+                databaseRepository.saveLastLoadedPostIndex(selectedPostIndex)
+                Result.PostLoadedResult(loadPostsResult.posts[selectedPostIndex])
+            }
+            is PostsRequestResult.Error -> Result.PostsLoadingError(loadPostsResult.message)
+        }
+    }
+
+    open suspend fun lastLoadedPost(): PostWithMetadata? {
+        val index = databaseRepository.getLastLoadedPostIndex()
+        val result = index?.let { loadPost(it) }
+
+        return when (result) {
+            is Result.PostLoadedResult -> result.post
+            else -> null
+        }
+    }
+
     sealed class RequestResult {
         object Success : RequestResult()
         data class Error(val message: String): RequestResult()
+    }
+
+    sealed class PostsRequestResult {
+        data class Success(val posts: List<PostWithMetadata>) : PostsRequestResult()
+        data class Error(val message: String) : PostsRequestResult()
     }
 }

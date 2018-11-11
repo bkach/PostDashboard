@@ -63,6 +63,10 @@ open class DatabaseRepository constructor(private val database: PostDatabase): K
             : Repository.RequestResult =
         processData(database.postDao().getPostWithCommentsAndUser(), success, error)
 
+    open fun getLastLoadedPostIndex(): Int? {
+        return database.postDao().getLastLoadedPostIndex()?.index
+    }
+
     open fun savePosts(posts: List<Post>) {
         database.postDao().savePosts(posts)
     }
@@ -78,4 +82,9 @@ open class DatabaseRepository constructor(private val database: PostDatabase): K
     fun savePhotos(photos: List<Photo>) {
         database.postDao().savePhotos(photos)
     }
+
+    fun saveLastLoadedPostIndex(selectedPostIndex: Int) {
+        database.postDao().replaceLastLoadedPost(LastLoadedPostIndex(selectedPostIndex))
+    }
+
 }

@@ -20,7 +20,6 @@ package com.example.boris.postdashboard.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.boris.postdashboard.model.Post
-import com.example.boris.postdashboard.viewmodel.Result
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.CompletableDeferred

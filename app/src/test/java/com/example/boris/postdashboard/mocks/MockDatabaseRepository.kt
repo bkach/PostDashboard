@@ -18,12 +18,12 @@
 
 package com.example.boris.postdashboard.mocks
 
-import com.example.boris.postdashboard.model.*
 import com.example.boris.postdashboard.mocks.MockModel.Companion.mockComment
 import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
 import com.example.boris.postdashboard.mocks.MockModel.Companion.mockPhoto
 import com.example.boris.postdashboard.mocks.MockModel.Companion.mockPost
 import com.example.boris.postdashboard.mocks.MockModel.Companion.mockUser
+import com.example.boris.postdashboard.model.*
 import com.example.boris.postdashboard.repository.DatabaseRepository
 import com.example.boris.postdashboard.repository.PostDao
 import com.example.boris.postdashboard.repository.PostDatabase
@@ -31,7 +31,7 @@ import com.example.boris.postdashboard.repository.Repository
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 
-class MockDatabaseRepository(val database: PostDatabase = mockDatabase()) : DatabaseRepository(database) {
+class MockDatabaseRepository(private val database: PostDatabase = mockDatabase()) : DatabaseRepository(database) {
 
     var getPostsSuccess = true
     var getCommentsSuccess = true
@@ -102,6 +102,8 @@ class MockDatabaseRepository(val database: PostDatabase = mockDatabase()) : Data
         else
             error("Error")
     }
+
+    override fun getLastLoadedPostIndex(): Int = 0
 
     override fun savePosts(posts: List<Post>) {
         database.postDao().savePosts(posts)

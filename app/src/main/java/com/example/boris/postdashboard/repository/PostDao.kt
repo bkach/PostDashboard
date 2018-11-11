@@ -22,6 +22,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.boris.postdashboard.model.*
 
 @Dao
@@ -38,6 +39,18 @@ interface PostDao {
     @Insert(onConflict = REPLACE)
     fun savePhotos(photos: List<Photo>)
 
+    @Insert(onConflict = REPLACE)
+    fun saveLastLoadedPost(lastLoadedPostIndex: LastLoadedPostIndex)
+
+    @Query("DELETE FROM lastLoadedPostIndex")
+    fun deleteLastLoadedPosts()
+
+    @Transaction
+    fun replaceLastLoadedPost(lastLoadedPostIndex: LastLoadedPostIndex) {
+        deleteLastLoadedPosts()
+        saveLastLoadedPost(lastLoadedPostIndex)
+    }
+
     @Query("SELECT * FROM post")
     fun loadPosts(): List<Post>
 
@@ -52,5 +65,8 @@ interface PostDao {
 
     @Query("SELECT * from photo")
     fun loadPhotos(): List<Photo>
+
+    @Query("SELECT * from lastLoadedPostIndex LIMIT 1")
+    fun getLastLoadedPostIndex(): LastLoadedPostIndex?
 
 }

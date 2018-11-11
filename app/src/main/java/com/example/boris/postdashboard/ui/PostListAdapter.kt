@@ -32,7 +32,7 @@ class PostListAdapter : RecyclerView.Adapter<PostListAdapter.ViewHolder>() {
 
     var posts: List<PostWithMetadata> = listOf()
 
-    var onClick: ((PostWithMetadata)-> Unit)? = null
+    var onClick: ((Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(
@@ -54,7 +54,7 @@ class PostListAdapter : RecyclerView.Adapter<PostListAdapter.ViewHolder>() {
                 .into(holder.postImageView)
 
             holder.clickListener {
-                onClick?.invoke(posts[position])
+                onClick?.invoke(holder.data.post!!.id - 1)
             }
         }
     }

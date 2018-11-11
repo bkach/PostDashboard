@@ -28,7 +28,7 @@ import org.hamcrest.Matcher
 /**
  * Custom View Assertion used to count the amount of items in a RecyclerView
  */
-class RecyclerViewItemCountAssertion(val matcher: Matcher<Int?>) : ViewAssertion {
+class RecyclerViewItemCountAssertion(private val matcher: Matcher<Int?>) : ViewAssertion {
     override fun check(view: View?, noViewFoundException: NoMatchingViewException?) {
         if (noViewFoundException != null) {
             throw noViewFoundException

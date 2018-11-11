@@ -84,6 +84,8 @@ class MockDatabaseInstrumentationRepository(context: Context) : DatabaseReposito
             error("Error")
     }
 
+    override fun getLastLoadedPostIndex(): Int = 0
+
     override suspend fun getPostsWithMetadata(
         success: (List<PostWithMetadata>) -> Repository.RequestResult,
         error: suspend (String) -> Repository.RequestResult

@@ -21,6 +21,8 @@ package com.example.boris.postdashboard.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+/**
+ * An entity used to store the index of the last loaded post
+ */
 @Entity
-data class Post(@PrimaryKey val id: Int, val userId: Int?, val title: String?, val body: String?)
-
+data class LastLoadedPostIndex(@PrimaryKey val index: Int)

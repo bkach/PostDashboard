@@ -21,6 +21,7 @@ package com.example.boris.postdashboard.mocks
 import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
 import com.example.boris.postdashboard.repository.Repository
 import com.example.boris.postdashboard.viewmodel.Result
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
@@ -38,9 +39,9 @@ class MockRepositoryWrapper {
 
     private fun mockLoadPosts() {
         runBlocking {
-            whenever(repository.loadPosts()).then {
-                    Result.PostsLoadResult(mockMetadata)
-            }
+            whenever(repository.loadPosts()).thenReturn(Repository.PostsRequestResult.Success(mockMetadata))
+            whenever(repository.lastLoadedPost()).thenReturn(mockMetadata[0])
+            whenever(repository.loadPost(any())).thenReturn(Result.PostLoadedResult(mockMetadata[0]))
         }
     }
 }

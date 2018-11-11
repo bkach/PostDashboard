@@ -20,11 +20,11 @@ package com.example.boris.postdashboard.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.boris.postdashboard.TestContextProvider
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
 import com.example.boris.postdashboard.mocks.MockDatabaseRepository
+import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
 import com.example.boris.postdashboard.mocks.MockNetworkRepository
-import com.example.boris.postdashboard.viewmodel.Result
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -91,7 +91,7 @@ class RepositoryTests {
         networkRepository.getPostsSuccess = false
         runBlocking {
             val result = repository.updateData()
-            assertEquals(Result.PostsLoadingError("error"), result)
+            assertEquals(Repository.PostsRequestResult.Error("error"), result)
         }
     }
 
@@ -111,7 +111,7 @@ class RepositoryTests {
         networkRepository.getPostsSuccess = false
         runBlocking {
             val result = repository.loadPosts()
-            assertEquals(Result.PostsLoadingError("error"), result)
+            assertEquals(Repository.PostsRequestResult.Error("error"), result)
         }
     }
 
@@ -120,7 +120,7 @@ class RepositoryTests {
         databaseRepository.getPostsWithMetadataSuccess = false
         runBlocking {
             val result = repository.loadPosts()
-            assertEquals(Result.PostsLoadingError("Error"), result)
+            assertEquals(Repository.PostsRequestResult.Error("Error"), result)
         }
     }
 
@@ -128,67 +128,7 @@ class RepositoryTests {
     fun `when loading posts and no errors, return posts with metadata`() {
         runBlocking {
             val result = repository.loadPosts()
-            assertEquals(Result.PostsLoadResult(mockMetadata), result)
+            assertEquals(Repository.PostsRequestResult.Success(mockMetadata), result)
         }
     }
-
-//    @Test
-//    fun `when getting details, return detail result if user and comments results were successful`() {
-////        runBlocking {
-////            whenever(databaseRepository.getUsers(anyOrNull(), anyOrNull())).thenReturn(
-////                    Repository.UsersResult.UsersLoadedResult(users)
-////            )
-////
-////            whenever(databaseRepository.getComments(anyOrNull(), anyOrNull())).thenReturn(
-////                Repository.CommentsResult.CommentsLoadedResult(comments)
-////            )
-////
-////            val result = repository.getDetails(post).await()
-////
-////            assertEquals(Result.DetailsLoadResult(post), result)
-////        }
-//    }
-////
-////    @Test
-////    fun `when getting details, return error result if user results fails`() {
-////        runBlocking {
-////            whenever(databaseRepository.getUsers(anyOrNull(), anyOrNull())).thenReturn(
-////                Repository.UsersResult.UserLoadingError("Error")
-////            )
-////
-////            whenever(databaseRepository.getComments(anyOrNull(), anyOrNull())).thenReturn(
-////                Repository.CommentsResult.CommentsLoadedResult(comments)
-////            )
-////
-////            val result = repository.getDetails(post).await()
-////
-////            assertEquals(Result.DetailsLoadingError("Error"), result)
-////        }
-////    }
-////
-////    @Test
-////    fun `when getting details, return error result if comments results fails`() {
-////        runBlocking {
-////            whenever(databaseRepository.getUsers(anyOrNull(), anyOrNull())).thenReturn(
-////                Repository.UsersResult.UsersLoadedResult(users)
-////            )
-////
-////            whenever(databaseRepository.getComments(anyOrNull(), anyOrNull())).thenReturn(
-////                Repository.CommentsResult.CommentsLoadingError("Error")
-////            )
-////
-////            val result = repository.getDetails(post).await()
-////
-////            assertEquals(Result.DetailsLoadingError("Error"), result)
-////        }
-////    }
-////
-////    @Test
-////    fun `when updating a post, its user name and comments should be updated`() {
-////
-////        val updatedPost = repository.createUpdatedPost(post, users, comments)
-////
-////        assertEquals(2, updatedPost.numComments)
-////        assertEquals("Anne", post.userName)
-////    }
 }

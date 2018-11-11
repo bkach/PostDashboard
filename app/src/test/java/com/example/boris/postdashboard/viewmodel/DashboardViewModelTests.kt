@@ -43,7 +43,7 @@ class DashboardViewModelTests {
     @JvmField
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    lateinit var viewModel: DashboardViewModel
+    private lateinit var viewModel: DashboardViewModel
 
     private val repositoryWrapper = MockRepositoryWrapper()
     private val intentInterpreter = Intent.IntentInterpreter()
@@ -69,7 +69,7 @@ class DashboardViewModelTests {
     @Test
     fun `on init, recieve initial data`() {
         viewModel.state.observeForever {
-            assertEquals(State.PostsLoaded(mockMetadata), it)
+            assertEquals(State.PostsLoaded(mockMetadata, mockMetadata[0]), it)
         }
     }
 
@@ -77,13 +77,13 @@ class DashboardViewModelTests {
     fun `when sending leave detail intent, get post data`() {
         viewModel.sendIntent(Intent.LeaveDetailIntent)
         viewModel.state.observeForever {
-            assertEquals(State.PostsLoaded(mockMetadata), it)
+            assertEquals(State.PostsLoaded(mockMetadata, mockMetadata[0]), it)
         }
     }
 
     @Test
     fun `when sending comment tapped action, receive hide comment state`() {
-        viewModel.sendIntent(Intent.SelectPostIntent(mockMetadata[0]))
+        viewModel.sendIntent(Intent.SelectPostIntent(0))
         viewModel.sendIntent(Intent.CommentTapped(true))
         viewModel.state.observeForever {
             assertEquals(State.HideComments(mockMetadata[0]), it)
@@ -92,7 +92,7 @@ class DashboardViewModelTests {
 
     @Test
     fun `when post selected, return details loaded`() {
-        viewModel.sendIntent(Intent.SelectPostIntent(mockMetadata[0]))
+        viewModel.sendIntent(Intent.SelectPostIntent(0))
         viewModel.state.observeForever {
             assertEquals(State.DetailsLoaded(mockMetadata[0]), it)
         }

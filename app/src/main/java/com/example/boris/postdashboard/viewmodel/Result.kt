@@ -24,8 +24,8 @@ import com.example.boris.postdashboard.model.PostWithMetadata
  * The Result of an [Action]s operation
  */
 sealed class Result {
-    data class PostsLoadResult(val posts: List<PostWithMetadata>): Result()
-    data class DetailsLoadResult(val post: PostWithMetadata): Result()
+    data class PostsLoadResult(val posts: List<PostWithMetadata>, val lastSelectedPost: PostWithMetadata?): Result()
+    data class PostLoadedResult(val post: PostWithMetadata): Result()
     data class PostsLoadingError(val message: String) : Result()
     data class DetailsLoadingError(val message: String) : Result()
     object PostsLoading : Result()
@@ -42,11 +42,11 @@ sealed class Result {
         override suspend fun interpret(input: Result, callback: suspend (State) -> Unit) {
             callback(
                 when(input) {
-                    is PostsLoadResult -> State.PostsLoaded(input.posts)
+                    is PostsLoadResult -> State.PostsLoaded(input.posts, input.lastSelectedPost)
                     is PostsLoading -> State.PostsLoading
                     is NavigateToDetails -> State.DetailsLoading
                     is PostsLoadingError -> State.Error(input.message)
-                    is DetailsLoadResult -> State.DetailsLoaded(input.post)
+                    is PostLoadedResult -> State.DetailsLoaded(input.post)
                     is DetailsLoadingError -> State.Error(input.message)
                     is HideComments -> State.HideComments(input.post)
                     is ShowComments -> State.ShowComments(input.post)

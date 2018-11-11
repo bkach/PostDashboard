@@ -38,7 +38,7 @@ class ActionInterpreterTests {
     @JvmField
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    lateinit var actionInterpreter: Action.ActionInterpreter
+    private lateinit var actionInterpreter: Action.ActionInterpreter
     private val repositoryWrapper = MockRepositoryWrapper()
 
     @Before
@@ -57,7 +57,7 @@ class ActionInterpreterTests {
                 if (timesCalled == 1) {
                     assertEquals(Result.PostsLoading, result)
                 } else {
-                    assertEquals(Result.PostsLoadResult(mockMetadata), result)
+                    assertEquals(Result.PostsLoadResult(mockMetadata, mockMetadata[0]), result)
                 }
             }
 
@@ -76,11 +76,11 @@ class ActionInterpreterTests {
                 if (timesCalled == 1) {
                     assertEquals(Result.NavigateToDetails, result)
                 } else {
-                    assertEquals(Result.DetailsLoadResult(mockMetadata[0]), result)
+                    assertEquals(Result.PostLoadedResult(mockMetadata[0]), result)
                 }
             }
 
-            actionInterpreter.interpret(Action.ShowDetailViewAction(mockMetadata[0]), callback)
+            actionInterpreter.interpret(Action.ShowDetailViewAction(0), callback)
         }
     }
 
@@ -88,7 +88,7 @@ class ActionInterpreterTests {
     fun `When show post without loading action is passed, load posts result should be passed as result`() {
         runBlocking {
             val callback: suspend (Result) -> Unit = {
-                assertEquals(Result.PostsLoadResult(mockMetadata), it)
+                assertEquals(Result.PostsLoadResult(mockMetadata, mockMetadata[0]), it)
             }
             actionInterpreter.interpret(Action.ShowPostsWithoutLoading, callback)
         }
@@ -101,7 +101,7 @@ class ActionInterpreterTests {
                 assertEquals(Result.HideComments(mockMetadata[0]), it)
             }
 
-            actionInterpreter.interpret(Action.ShowDetailViewAction(mockMetadata[0])) {}
+            actionInterpreter.interpret(Action.ShowDetailViewAction(0)) {}
             actionInterpreter.interpret(Action.ShowOrHideComment(true), callback)
         }
     }
@@ -113,7 +113,7 @@ class ActionInterpreterTests {
                 assertEquals(Result.ShowComments(mockMetadata[0]), it)
             }
 
-            actionInterpreter.interpret(Action.ShowDetailViewAction(mockMetadata[0])) {}
+            actionInterpreter.interpret(Action.ShowDetailViewAction(0)) {}
             actionInterpreter.interpret(Action.ShowOrHideComment(false), callback)
         }
     }

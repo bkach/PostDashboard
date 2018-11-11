@@ -28,6 +28,7 @@ import org.koin.standalone.StandAloneContext.startKoin
 /**
  * Class used primarily for creating and holding the Koin Module for Dependency Injection
  */
+@Suppress("unused")
 class Application : Application() {
     override fun onCreate() {
         super.onCreate()

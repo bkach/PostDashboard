@@ -19,9 +19,6 @@
 package com.example.boris.postdashboard.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
-import com.example.boris.postdashboard.model.Post
-import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -54,9 +51,9 @@ class IntentInterpreterTests {
     fun `When sending select post intent, a show detail view action should be returned`() {
         runBlocking {
             val callback: suspend (Action) -> Unit = {action ->
-                assertEquals(Action.ShowDetailViewAction(mockMetadata[0]), action)
+                assertEquals(Action.ShowDetailViewAction(0), action)
             }
-            intentInterpreter.interpret(Intent.SelectPostIntent(mockMetadata[0]), callback)
+            intentInterpreter.interpret(Intent.SelectPostIntent(0), callback)
         }
     }
 

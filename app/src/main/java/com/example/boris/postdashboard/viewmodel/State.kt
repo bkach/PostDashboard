@@ -25,7 +25,7 @@ import com.example.boris.postdashboard.model.PostWithMetadata
  */
 sealed class State {
     data class Error(val message: String) : State()
-    data class PostsLoaded(val posts: List<PostWithMetadata>) : State()
+    data class PostsLoaded(val posts: List<PostWithMetadata>, val lastSelectedPost: PostWithMetadata?) : State()
     data class DetailsLoaded(val post: PostWithMetadata) : State()
     object PostsLoading : State()
     object DetailsLoading : State()

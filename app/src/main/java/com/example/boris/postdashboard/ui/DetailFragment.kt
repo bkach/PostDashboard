@@ -114,6 +114,15 @@ class DetailFragment : Fragment() {
                         setFields(state.post)
                         hideComments()
                     }
+                    is State.PostsLoaded -> {
+                        // If we're in this state, it's because the app was restarted!
+                        if (state.lastSelectedPost != null) {
+                            setFields(state.lastSelectedPost)
+                        } else {
+                            showError()
+                        }
+
+                    }
                 }
             })
     }

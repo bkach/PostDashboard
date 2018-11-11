@@ -19,9 +19,7 @@
 package com.example.boris.postdashboard.model
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.google.gson.annotations.SerializedName
 
 @Entity
 data class User(@PrimaryKey val id: Int, val name: String)

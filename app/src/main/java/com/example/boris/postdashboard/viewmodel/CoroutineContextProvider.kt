@@ -25,14 +25,14 @@ import kotlin.coroutines.CoroutineContext
 /**
  * CoroutineContextProvider
  *
- * Class used to abstract out the [CouritineContext] from users in order to be able to test coroutines
+ * Class used to abstract out the CouritineContext from users in order to be able to test coroutines
  */
 open class CoroutineContextProvider {
 
     private val job = Job()
 
-    open val Main: CoroutineContext by lazy { Dispatchers.Main + job }
-    open val IO: CoroutineContext by lazy { Dispatchers.IO + job }
+    open val main: CoroutineContext by lazy { Dispatchers.Main + job }
+    open val io: CoroutineContext by lazy { Dispatchers.IO + job }
 
     open fun cancelJob() {
         job.cancel()

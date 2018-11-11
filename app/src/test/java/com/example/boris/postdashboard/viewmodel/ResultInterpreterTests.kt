@@ -20,12 +20,11 @@ package com.example.boris.postdashboard.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.boris.postdashboard.mocks.MockModel.Companion.mockMetadata
-import com.example.boris.postdashboard.mocks.MockRepositoryWrapper
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
-import org.mockito.junit.MockitoJUnit
 import org.junit.Test
+import org.mockito.junit.MockitoJUnit
 
 class ResultInterpreterTests {
     @Rule
@@ -42,9 +41,9 @@ class ResultInterpreterTests {
     fun `when load post results is passed, post loaded state should be returned`() {
         runBlocking {
             val callback: suspend (State) -> Unit = { state ->
-                assertEquals(State.PostsLoaded(mockMetadata), state)
+                assertEquals(State.PostsLoaded(mockMetadata, mockMetadata[0]), state)
             }
-            resultInterpreter.interpret(Result.PostsLoadResult(mockMetadata), callback)
+            resultInterpreter.interpret(Result.PostsLoadResult(mockMetadata, mockMetadata[0]), callback)
         }
     }
 

@@ -36,7 +36,7 @@ class DashboardViewModel constructor(
     private val contextPool: CoroutineContextProvider) : ViewModel(), KoinComponent, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
-        get() = contextPool.IO
+        get() = contextPool.io
 
     private val _state: MutableLiveData<State> = MutableLiveData()
     val state: LiveData<State>
@@ -54,7 +54,7 @@ class DashboardViewModel constructor(
      *      Intents -> Actions -> (Action taken) -> Result -> State
      */
     fun sendIntent(intent: Intent) {
-        launch(contextPool.IO) {
+        launch(contextPool.io) {
             intentInterpreter.interpret(intent) { action ->
                 actionInterpreter.interpret(action) { result ->
                     resultInterpreter.interpret(result, ::changeState)
@@ -64,7 +64,7 @@ class DashboardViewModel constructor(
     }
 
     private suspend fun changeState(nextState: State) {
-        launch(contextPool.Main) {
+        launch(contextPool.main) {
             _state.value = nextState
         }
     }

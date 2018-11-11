@@ -20,17 +20,13 @@ package com.example.boris.postdashboard.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.boris.postdashboard.model.Post
-import com.example.boris.postdashboard.viewmodel.Result
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.koin.dsl.module.module
-import org.koin.standalone.StandAloneContext.loadKoinModules
 import org.mockito.junit.MockitoJUnit
 
 class DatabaseRepositoryTests {
